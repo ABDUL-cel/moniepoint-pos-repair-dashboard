@@ -10,6 +10,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,10 +23,10 @@ mongoose.connect(process.env.MONGO_URI)
 /*                               MONGOOSE SCHEMAS                             */
 /* -------------------------------------------------------------------------- */
 
-// User / Technician Schema
+// Technician Schema
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  techId: { type: String, required: true, unique: true }, // Technician ID
+  techId: { type: String, required: true, unique: true },
   password: { type: String, required: true }
 }, { timestamps: true });
 
@@ -39,10 +40,10 @@ const RepairSchema = new mongoose.Schema({
   faultType: { 
     type: String, 
     enum: [
-      'Screen / Display', 
-      'Battery / Charging Port', 
-      'Network / SIM Slot', 
-      'OS / App Software Reflash', 
+      'Battery / Charging Port',
+      'Screen / Display',
+      'Network / SIM Slot',
+      'OS / App Software Reflash',
       'Keypad / Printer Hardware'
     ],
     required: true 
@@ -76,7 +77,6 @@ const Transport = mongoose.model('Transport', TransportSchema);
 /*                           HELPER FUNCTIONS & AUTH                          */
 /* -------------------------------------------------------------------------- */
 
-// JWT Authentication Middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -89,13 +89,12 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Date Format Helpers
 const getTodayDate = () => new Date().toISOString().split('T')[0];
 
 const getStartOfWeek = () => {
   const d = new Date();
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(d.setDate(diff));
   return monday.toISOString().split('T')[0];
 };
@@ -104,19 +103,26 @@ const getStartOfWeek = () => {
 /*                                AUTH ROUTES                                 */
 /* -------------------------------------------------------------------------- */
 
-// Register Technician
+// Register Technician (Auto-generates Tech ID)
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { name, techId, password } = req.body;
-    
-    const existingUser = await User.findOne({ techId });
-    if (existingUser) return res.status(400).json({ message: 'Technician ID already registered' });
+    const { name, password } = req.body;
+
+    if (!name || !password) {
+      return res.status(400).json({ message: 'Full name and password are required' });
+    }
+
+    const randomDigits = Math.floor(1000 + Math.random() * 9000);
+    const techId = `TECH-${randomDigits}`;
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, techId, password: hashedPassword });
     await newUser.save();
 
-    res.status(201).json({ message: 'Technician account created successfully' });
+    res.status(201).json({ 
+      message: 'Technician account created successfully', 
+      techId: techId 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error during registration', error: error.message });
   }
@@ -181,24 +187,20 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
     const today = getTodayDate();
     const startOfWeek = getStartOfWeek();
 
-    // 1. Today's Resolved Repairs Count
     const todayRepairsCount = await Repair.countDocuments({
       techId: userId,
       repairDate: today
     });
 
-    // 2. Weekly Resolved Repairs Count
     const weeklyRepairsCount = await Repair.countDocuments({
       techId: userId,
       repairDate: { $gte: startOfWeek }
     });
 
-    // 3. Fetch Recent 10 Repair Tickets
     const recentRepairs = await Repair.find({ techId: userId })
       .sort({ createdAt: -1 })
       .limit(10);
 
-    // 4. Get Current Week's Transport Log
     let transportLog = await Transport.findOne({ techId: userId, weekStartDate: startOfWeek });
     if (!transportLog) {
       transportLog = new Transport({ techId: userId, weekStartDate: startOfWeek });
@@ -212,11 +214,11 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
       transportDays: transportLog.transportDays
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching technician dashboard data', error: error.message });
+    res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 });
 
-// Update Weekly Transport Allowance Checklist
+// Update Weekly Transport Allowance
 app.post('/api/transport/update', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -234,10 +236,6 @@ app.post('/api/transport/update', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error updating transport allowance', error: error.message });
   }
 });
-
-/* -------------------------------------------------------------------------- */
-/*                               SERVER STARTUP                               */
-/* -------------------------------------------------------------------------- */
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Moniepoint Tech Portal running on port ${PORT}`));
