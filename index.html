@@ -3,47 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moniepoint Agent Auth</title>
+  <title>Moniepoint Terminal Technician Auth</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="auth-container">
     <div class="auth-card">
-      <div class="brand-header">Moniepoint Agent</div>
+      <div class="brand-header">Moniepoint Tech</div>
       
       <!-- Login Form -->
       <form id="loginForm">
-        <h2>Login</h2>
+        <h2>Technician Login</h2>
         <br>
         <div class="form-group">
-          <label>Agent ID</label>
-          <input type="text" id="loginAgentId" required>
+          <label>Technician ID</label>
+          <input type="text" id="loginTechId" placeholder="e.g. TECH-1042" required>
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="loginPassword" required>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
         </div>
-        <button type="submit" class="btn-primary">Sign In</button>
-        <p class="toggle-auth">New Agent? <a href="#" onclick="toggleAuth(true)">Register here</a></p>
+        <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
+        <p class="toggle-auth">New Technician? <a href="#" onclick="toggleAuth(true)">Register portal account</a></p>
       </form>
 
       <!-- Register Form -->
       <form id="registerForm" style="display: none;">
-        <h2>Register</h2>
+        <h2>Technician Registration</h2>
         <br>
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" id="regName" required>
+          <input type="text" id="regName" placeholder="e.g. John Doe" required>
         </div>
         <div class="form-group">
-          <label>Agent ID</label>
-          <input type="text" id="regAgentId" required>
+          <label>Technician ID</label>
+          <input type="text" id="regTechId" placeholder="e.g. TECH-1042" required>
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="regPassword" required>
+          <input type="password" id="regPassword" placeholder="••••••••" required>
         </div>
-        <button type="submit" class="btn-primary">Register</button>
+        <button type="submit" class="btn-primary" id="regBtn">Register Account</button>
         <p class="toggle-auth">Already registered? <a href="#" onclick="toggleAuth(false)">Login here</a></p>
       </form>
     </div>
