@@ -9,28 +9,90 @@
 <body>
   <div class="app-container">
     
-    <!-- Header -->
+    <!-- Header with Dark Mode Toggle -->
     <header>
       <div>
         <span class="brand-badge">Moniepoint Technical</span>
         <h2 id="techGreeting">Technician</h2>
         <small id="techIdDisplay">ID: ---</small>
       </div>
-      <button class="logout-btn" onclick="logout()">Exit</button>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="themeToggleBtn" class="logout-btn" onclick="toggleTheme()" style="padding: 6px 10px;">🌙</button>
+        <button class="logout-btn" onclick="logout()">Exit</button>
+      </div>
     </header>
 
-    <!-- Dark KPI Summary Card -->
+    <!-- KPI & Yearly Operations Summary Card -->
     <div class="dark-kpi-card">
       <h3>Terminal Operations Performance</h3>
-      <div class="kpi-grid">
+      <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;">
         <div class="kpi-item">
-          <label>Repairs Today</label>
+          <label>Today</label>
           <div class="value" id="todayRepairCount">0</div>
         </div>
         <div class="kpi-item">
-          <label>Repairs This Week</label>
+          <label>This Week</label>
           <div class="value" id="weeklyRepairCount">0</div>
         </div>
+        <div class="kpi-item">
+          <label>This Year</label>
+          <div class="value" id="yearlyRepairCount" style="color: var(--primary);">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Target Card (15 Terminals) -->
+    <div class="card">
+      <h3>🎯 Daily Terminal Target (15 / Day)</h3>
+      
+      <div class="circle-wrapper" style="position: relative; width: 140px; height: 140px; margin: 16px auto;">
+        <svg viewBox="0 0 36 36" class="circle-chart" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+          <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-color)" stroke-width="3.8" />
+          <path id="dailyCircle" class="circle-progress" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--primary)" stroke-width="3.8" stroke-linecap="round" />
+        </svg>
+        <div class="circle-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+          <div id="dailyCountText" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">/ 15 Terminals</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: 12px;">
+        <div id="dailyBar" class="progress-bar-fill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+        <span>0</span>
+        <span id="dailyBarLabel">0%</span>
+        <span>15 Target</span>
+      </div>
+    </div>
+
+    <!-- Weekly Bonus Target Card (72 Terminals = ₦30,000) -->
+    <div class="card">
+      <h3>🏆 Weekly Bonus Target (72 = ₦30,000)</h3>
+      
+      <div class="circle-wrapper" style="position: relative; width: 140px; height: 140px; margin: 16px auto;">
+        <svg viewBox="0 0 36 36" class="circle-chart" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+          <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-color)" stroke-width="3.8" />
+          <path id="weeklyCircle" class="circle-progress" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#059669" stroke-width="3.8" stroke-linecap="round" />
+        </svg>
+        <div class="circle-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+          <div id="weeklyCountText" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">/ 72 Terminals</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: 12px;">
+        <div id="weeklyBar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #059669; transition: width 0.4s ease;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+        <span>0</span>
+        <span id="weeklyBarLabel">0%</span>
+        <span>72 Target</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Technical Bonus Earned</span>
+        <span style="font-size: 1.4rem; font-weight: 800; color: #059669;" id="bonusEarnedText">₦0</span>
       </div>
     </div>
 
