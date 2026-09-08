@@ -2,12 +2,10 @@ const API_URL = '';
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user'));
 
-// Route guard: Redirect to login if user is not authenticated
 if (!token || !user) {
   window.location.href = 'index.html';
 }
 
-// Display Technician Info
 if (document.getElementById('techGreeting')) {
   document.getElementById('techGreeting').innerText = `Welcome, ${user.name || 'Technician'}`;
 }
@@ -15,7 +13,6 @@ if (document.getElementById('techIdDisplay')) {
   document.getElementById('techIdDisplay').innerText = `Tech ID: ${user.techId || 'N/A'}`;
 }
 
-// Fetch Dashboard Metrics & Logs
 async function loadDashboard() {
   try {
     const res = await fetch(`${API_URL}/api/dashboard`, {
@@ -25,7 +22,6 @@ async function loadDashboard() {
 
     if (!res.ok) throw new Error(data.message || 'Failed to fetch dashboard data');
 
-    // Update Today & Weekly Repair Summary Counts
     if (document.getElementById('todayRepairCount')) {
       document.getElementById('todayRepairCount').innerText = `${data.todayRepairsCount || 0} Terminals`;
     }
@@ -33,7 +29,6 @@ async function loadDashboard() {
       document.getElementById('weeklyRepairCount').innerText = `${data.weeklyRepairsCount || 0} Terminals`;
     }
 
-    // Populate Weekly Transport Allowance Checkboxes
     ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(day => {
       const checkbox = document.getElementById(day);
       if (checkbox && data.transportDays) {
@@ -42,7 +37,6 @@ async function loadDashboard() {
     });
     calculateTransportUI();
 
-    // Render Recent Repair Logs Table
     renderLogsTable(data.recentRepairs);
 
   } catch (err) {
@@ -50,7 +44,6 @@ async function loadDashboard() {
   }
 }
 
-// Render Recent Repair Logs with Colorful Status Badges
 function renderLogsTable(logs) {
   const tableBody = document.getElementById('repairLogsTable');
   if (!tableBody) return;
@@ -84,7 +77,6 @@ function renderLogsTable(logs) {
   });
 }
 
-// Document Terminal Repair Form Submission
 const repairForm = document.getElementById('repairForm');
 if (repairForm) {
   repairForm.addEventListener('submit', async (e) => {
@@ -117,7 +109,7 @@ if (repairForm) {
 
       if (res.ok) {
         repairForm.reset();
-        loadDashboard(); // Refresh metrics & logs table
+        loadDashboard();
       } else {
         alert(data.message || 'Failed to document repair');
       }
@@ -132,7 +124,6 @@ if (repairForm) {
   });
 }
 
-// Update Transport Checkbox Selections
 async function updateTransport() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const transportDays = {};
@@ -156,7 +147,6 @@ async function updateTransport() {
   }
 }
 
-// Calculate Transport Allowance total (₦4,000 per checked day)
 function calculateTransportUI() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   let checkedCount = 0;
@@ -171,11 +161,9 @@ function calculateTransportUI() {
   }
 }
 
-// Logout
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
 
-// Initial Load
 loadDashboard();
