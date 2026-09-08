@@ -3,41 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moniepoint POS Agent Dashboard</title>
+  <title>Moniepoint Terminal Technician Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="app-container">
     <header>
       <div>
-        <h2 id="agentGreeting" style="color: #00B386;">Welcome, Agent</h2>
-        <small id="agentIdDisplay" style="color: #666;"></small>
+        <h2 id="techGreeting" style="color: #00B386;">Welcome, Technician</h2>
+        <small id="techIdDisplay" style="color: #666;"></small>
       </div>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
 
-    <!-- Daily Target Card -->
+    <!-- Document New Terminal Repair -->
     <div class="card">
-      <h3>Daily Deploy Target (15 POS)</h3>
-      <div class="metric-value"><span id="todayCount">0</span> / 15</div>
-      <div class="progress-bar-bg">
-        <div id="dailyProgressBar" class="progress-bar-fill"></div>
-      </div>
-      <button class="btn-primary" onclick="deployPos()">+ Deploy POS</button>
+      <h3>Document Terminal Repair</h3>
+      <form id="repairForm" style="margin-top: 15px;">
+        <div class="form-group">
+          <label>POS Serial Number (S/N)</label>
+          <input type="text" id="serialNumber" placeholder="e.g. MP-8210-9940" required>
+        </div>
+        <div class="form-group">
+          <label>Merchant Name / Location</label>
+          <input type="text" id="merchantName" placeholder="e.g. Chinedu Stores, Ikeja" required>
+        </div>
+        <div class="form-group">
+          <label>Fault Diagnosed</label>
+          <select id="faultType" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #fff;">
+            <option value="Battery / Charging Port">Battery / Charging Port</option>
+            <option value="Screen / Display">Screen / Display</option>
+            <option value="Network / SIM Slot">Network / SIM Slot</option>
+            <option value="OS / App Software Reflash">OS / App Software Reflash</option>
+            <option value="Keypad / Printer Hardware">Keypad / Printer Hardware</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Repair Outcome Status</label>
+          <select id="status" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #fff;">
+            <option value="Fixed">Fixed</option>
+            <option value="Replaced Terminal">Replaced Terminal</option>
+            <option value="Pending Part">Pending Part</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">+ Document Repair</button>
+      </form>
     </div>
 
-    <!-- Weekly Bonus Card -->
+    <!-- Daily & Weekly Repair Metrics Card -->
     <div class="card">
-      <h3>Weekly Bonus Tracker (Target: 72 POS)</h3>
-      <div class="metric-value"><span id="weeklyCount">0</span> / 72 POS</div>
-      <p style="margin-top: 5px; font-weight: bold; color: #333;">
-        Bonus Earned: <span id="earnedBonus" style="color: #00B386;">₦0</span> / ₦30,000
-      </p>
+      <h3>Repair Performance Summary</h3>
+      <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+        <div>
+          <small style="color: #666;">Repairs Today</small>
+          <div class="metric-value" id="todayRepairCount">0</div>
+        </div>
+        <div style="text-align: right;">
+          <small style="color: #666;">Repairs This Week</small>
+          <div class="metric-value" id="weeklyRepairCount">0</div>
+        </div>
+      </div>
     </div>
 
     <!-- Transport Allowance Card -->
     <div class="card">
-      <h3>Weekly Transport Tracker (₦4,000 / Day)</h3>
+      <h3>Weekly Transport Tracker (₦4,000 / Field Day)</h3>
       <div class="checkbox-group">
         <div class="checkbox-item"><label>Mon</label><input type="checkbox" id="Mon" onchange="updateTransport()"></div>
         <div class="checkbox-item"><label>Tue</label><input type="checkbox" id="Tue" onchange="updateTransport()"></div>
@@ -46,6 +76,28 @@
         <div class="checkbox-item"><label>Fri</label><input type="checkbox" id="Fri" onchange="updateTransport()"></div>
       </div>
       <div class="metric-value" style="font-size: 1.5rem;" id="transportTotal">₦0</div>
+    </div>
+
+    <!-- Recent Repair Logs Table -->
+    <div class="card">
+      <h3>Recent Terminal Logs</h3>
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table style="width: 100%; text-align: left; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid #f4f6f8; color: #666;">
+              <th style="padding: 8px 4px;">S/N</th>
+              <th style="padding: 8px 4px;">Merchant</th>
+              <th style="padding: 8px 4px;">Fault</th>
+              <th style="padding: 8px 4px;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="repairLogsTable">
+            <tr>
+              <td colspan="4" style="padding: 12px 0; text-align: center; color: #999;">No repairs logged yet today.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
