@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moniepoint POS Agent Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div>
+        <h2 id="agentGreeting" style="color: #00B386;">Welcome, Agent</h2>
+        <small id="agentIdDisplay" style="color: #666;"></small>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- Daily Target Card -->
+    <div class="card">
+      <h3>Daily Deploy Target (15 POS)</h3>
+      <div class="metric-value"><span id="todayCount">0</span> / 15</div>
+      <div class="progress-bar-bg">
+        <div id="dailyProgressBar" class="progress-bar-fill"></div>
+      </div>
+      <button class="btn-primary" onclick="deployPos()">+ Deploy POS</button>
+    </div>
+
+    <!-- Weekly Bonus Card -->
+    <div class="card">
+      <h3>Weekly Bonus Tracker (Target: 72 POS)</h3>
+      <div class="metric-value"><span id="weeklyCount">0</span> / 72 POS</div>
+      <p style="margin-top: 5px; font-weight: bold; color: #333;">
+        Bonus Earned: <span id="earnedBonus" style="color: #00B386;">₦0</span> / ₦30,000
+      </p>
+    </div>
+
+    <!-- Transport Allowance Card -->
+    <div class="card">
+      <h3>Weekly Transport Tracker (₦4,000 / Day)</h3>
+      <div class="checkbox-group">
+        <div class="checkbox-item"><label>Mon</label><input type="checkbox" id="Mon" onchange="updateTransport()"></div>
+        <div class="checkbox-item"><label>Tue</label><input type="checkbox" id="Tue" onchange="updateTransport()"></div>
+        <div class="checkbox-item"><label>Wed</label><input type="checkbox" id="Wed" onchange="updateTransport()"></div>
+        <div class="checkbox-item"><label>Thu</label><input type="checkbox" id="Thu" onchange="updateTransport()"></div>
+        <div class="checkbox-item"><label>Fri</label><input type="checkbox" id="Fri" onchange="updateTransport()"></div>
+      </div>
+      <div class="metric-value" style="font-size: 1.5rem;" id="transportTotal">₦0</div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
