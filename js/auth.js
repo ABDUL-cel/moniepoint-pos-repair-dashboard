@@ -1,4 +1,4 @@
-const API_URL = '';
+const API_URL = 'https://moniepoint-pos-repair-dashboard.onrender.com';
 
 if (localStorage.getItem('token')) {
   window.location.href = 'dashboard.html';
