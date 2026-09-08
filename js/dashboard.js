@@ -14,7 +14,7 @@ if (document.getElementById('techIdDisplay')) {
   document.getElementById('techIdDisplay').innerText = `ID: ${user.techId || user.agentId || '---'}`;
 }
 
-// --- DARK MODE TOGGLE LOGIC ---
+// Theme Logic
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -36,7 +36,7 @@ function updateThemeButton(theme) {
 
 initTheme();
 
-// --- FETCH DASHBOARD DATA ---
+// --- FETCH DASHBOARD DATA FROM BACKEND ---
 async function loadDashboard() {
   try {
     const res = await fetch(`${API_URL}/api/dashboard`, {
@@ -49,6 +49,7 @@ async function loadDashboard() {
     const todayCount = data.todayRepairsCount || 0;
     const weeklyCount = data.weeklyRepairsCount || 0;
     const yearlyCount = data.yearlyRepairsCount || 0;
+    const missedWeeks = data.missedWeeks !== undefined ? data.missedWeeks : 0;
 
     // 1. KPI Counts
     if (document.getElementById('todayRepairCount')) document.getElementById('todayRepairCount').innerText = todayCount;
@@ -69,10 +70,15 @@ async function loadDashboard() {
     if (document.getElementById('weeklyBar')) document.getElementById('weeklyBar').style.width = `${weeklyPct}%`;
     if (document.getElementById('weeklyBarLabel')) document.getElementById('weeklyBarLabel').innerText = `${weeklyPct}%`;
 
-    const bonusEarned = Math.round((weeklyCount / 72) * 30000);
+    const bonusEarned = weeklyCount >= 72 ? 30000 : Math.round((weeklyCount / 72) * 30000);
     if (document.getElementById('bonusEarnedText')) document.getElementById('bonusEarnedText').innerText = `₦${bonusEarned.toLocaleString()}`;
 
-    // 4. Transport Selection Sync
+    // 4. Monthly Tier Pay Calculation (0, 1, 2, 3, 4 Missed Weeks)
+    const missedSelect = document.getElementById('missedWeeksSelect');
+    if (missedSelect) missedSelect.value = missedWeeks;
+    calculateMonthlyPayUI(missedWeeks);
+
+    // 5. Transport Checkbox Sync
     ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(day => {
       const checkbox = document.getElementById(day);
       if (checkbox && data.transportDays) {
@@ -81,7 +87,7 @@ async function loadDashboard() {
     });
     calculateTransportUI();
 
-    // 5. Render History Logs
+    // 6. Render Logs Table
     renderLogsTable(data.recentRepairs);
 
   } catch (err) {
@@ -89,7 +95,56 @@ async function loadDashboard() {
   }
 }
 
-// Render Table Logs
+// Calculate Monthly Tier Payout Logic
+function calculateMonthlyPayUI(missedCount) {
+  let totalPayout = 200000; // ₦200,000 Base Salary Floor
+
+  switch (parseInt(missedCount, 10)) {
+    case 0:
+      totalPayout = 320000; // All weekly targets met (200k base + 120k bonuses)
+      break;
+    case 1:
+      totalPayout = 300000; // 1 Week missed
+      break;
+    case 2:
+      totalPayout = 280000; // 2 Weeks missed
+      break;
+    case 3:
+      totalPayout = 200000; // 3 Weeks missed (Base salary)
+      break;
+    case 4:
+      totalPayout = 200000; // 4 Weeks missed (Base salary)
+      break;
+    default:
+      totalPayout = 200000;
+      break;
+  }
+
+  const payoutEl = document.getElementById('monthlyPayoutText');
+  if (payoutEl) {
+    payoutEl.innerText = `₦${totalPayout.toLocaleString()}`;
+  }
+}
+
+// Send Selected Missed Weeks Tier to Backend
+async function updateMissedWeeks(missedValue) {
+  calculateMonthlyPayUI(missedValue);
+
+  try {
+    await fetch(`${API_URL}/api/monthly/missed-weeks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ missedWeeks: parseInt(missedValue, 10) })
+    });
+  } catch (err) {
+    console.error('Failed to sync missed weeks to backend:', err);
+  }
+}
+
+// Render Table Logs with custom CSS Badges
 function renderLogsTable(logs) {
   const tableBody = document.getElementById('repairLogsTable');
   if (!tableBody) return;
@@ -107,19 +162,23 @@ function renderLogsTable(logs) {
   }
 
   logs.forEach(log => {
+    let badgeClass = 'badge-fixed';
+    if (log.status === 'Replaced Terminal') badgeClass = 'badge-replaced';
+    if (log.status === 'Pending Part') badgeClass = 'badge-pending';
+
     const row = document.createElement('tr');
     row.style.borderBottom = '1px solid var(--border-color)';
     row.innerHTML = `
       <td style="padding: 10px 4px; font-weight: 700;">${log.serialNumber}</td>
       <td style="padding: 10px 4px;">${log.merchantName}</td>
       <td style="padding: 10px 4px; color: var(--text-muted);">${log.faultType}</td>
-      <td style="padding: 10px 4px;"><span class="badge">${log.status}</span></td>
+      <td style="padding: 10px 4px;"><span class="badge ${badgeClass}">${log.status}</span></td>
     `;
     tableBody.appendChild(row);
   });
 }
 
-// Form Submission
+// Submit Form to Backend
 const repairForm = document.getElementById('repairForm');
 if (repairForm) {
   repairForm.addEventListener('submit', async (e) => {
