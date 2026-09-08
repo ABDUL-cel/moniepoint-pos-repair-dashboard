@@ -1,6 +1,5 @@
 const API_URL = '';
 
-// Check if technician is already logged in
 if (localStorage.getItem('token')) {
   window.location.href = 'dashboard.html';
 }
@@ -54,20 +53,20 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   regBtn.innerText = 'Registering...';
 
   const name = document.getElementById('regName').value.trim();
-  const techId = document.getElementById('regTechId').value.trim();
   const password = document.getElementById('regPassword').value;
 
   try {
     const res = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, techId, password })
+      body: JSON.stringify({ name, password })
     });
     
     const data = await res.json();
     
     if (res.ok) {
-      alert('Technician registered successfully! Please log in.');
+      alert(`Registration successful!\n\nYour Tech ID is: ${data.techId}\n\nPlease save this ID to log in.`);
+      document.getElementById('loginTechId').value = data.techId;
       toggleAuth(false);
     } else {
       alert(data.message || 'Registration failed');
