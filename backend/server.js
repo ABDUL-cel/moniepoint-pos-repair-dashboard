@@ -215,11 +215,13 @@ app.post('/api/auth/login', async (req, res) => {
 /*                           TECHNICIAN REPAIR ROUTES                         */
 /* -------------------------------------------------------------------------- */
 
-// Log a New Terminal Repair
+// Log a New Terminal Repair (With Optional Custom Date Support)
 app.post('/api/repairs/log', authenticateToken, async (req, res) => {
   try {
-    const { serialNumber, merchantName, faultType, status } = req.body;
-    const today = getTodayDate();
+    const { serialNumber, merchantName, faultType, status, repairDate } = req.body;
+    
+    // Uses provided repairDate, falling back to current UTC date if omitted
+    const targetDate = repairDate || getTodayDate();
 
     if (!serialNumber || !merchantName || !faultType) {
       return res.status(400).json({ message: 'Serial number, merchant name, and fault type are required.' });
@@ -231,7 +233,7 @@ app.post('/api/repairs/log', authenticateToken, async (req, res) => {
       merchantName,
       faultType,
       status: status || 'Repaired & Tested',
-      repairDate: today
+      repairDate: targetDate
     });
 
     await repair.save();
@@ -240,6 +242,7 @@ app.post('/api/repairs/log', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to record repair log', error: error.message });
   }
 });
+
 
 // Fetch Dashboard Metrics & Recent Repairs
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
