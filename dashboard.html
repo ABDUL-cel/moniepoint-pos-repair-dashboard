@@ -6,7 +6,6 @@
   <title>Moniepoint POS Repair Dashboard</title>
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
-
   <link rel="stylesheet" href="css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,16 +13,11 @@
 
   <style>
     * { box-sizing: border-box; }
-    
-    body {
-      margin: 0;
-      padding: 12px;
-      overflow-x: hidden;
-    }
+    body { margin: 0; padding: 12px; overflow-x: hidden; }
 
     .kpi-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
       margin-bottom: 20px;
       width: 100%;
@@ -36,24 +30,9 @@
       width: 100%;
     }
 
-    .card {
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    header {
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-bottom: 12px;
-    }
+    .card { width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; }
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    header { flex-wrap: wrap; gap: 12px; padding-bottom: 12px; }
 
     @media (max-width: 480px) {
       body { padding: 8px; }
@@ -87,23 +66,23 @@
     </div>
   </header>
 
-  <!-- 2. KPI METRICS -->
+  <!-- 2. KPI METRICS (UPDATED PROGRESS FORMAT) -->
   <div class="kpi-container">
     <div class="card" style="text-align: center; padding: 12px;">
       <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Today's Repairs</span>
-      <div id="todayRepairCount" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 4px;">0</div>
+      <div id="todayRepairCount" style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-top: 4px;">0 / 15</div>
     </div>
     <div class="card" style="text-align: center; padding: 12px;">
       <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Weekly Repairs</span>
-      <div id="weeklyRepairCount" style="font-size: 1.6rem; font-weight: 800; color: var(--accent-blue, #0284C7); margin-top: 4px;">0</div>
+      <div id="weeklyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: #0284C7; margin-top: 4px;">0 / 72</div>
     </div>
     <div class="card" style="text-align: center; padding: 12px;">
       <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Monthly Repairs</span>
-      <div id="monthlyRepairCount" style="font-size: 1.6rem; font-weight: 800; color: #059669; margin-top: 4px;">0</div>
+      <div id="monthlyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: #059669; margin-top: 4px;">0 / 300</div>
     </div>
     <div class="card" style="text-align: center; padding: 12px;">
       <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Year-to-Date</span>
-      <div id="yearlyRepairCount" style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-top: 4px;">0</div>
+      <div id="yearlyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 4px;">0 Total</div>
     </div>
   </div>
 
@@ -242,7 +221,7 @@
       </div>
     </div>
 
-    <!-- TRANSPORT ALLOWANCE CARD WITH CONFIGURABLE DAILY RATE -->
+    <!-- TRANSPORT ALLOWANCE CARD -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
         <h3 style="margin: 0;">🚗 Weekly Transport Allowance</h3>
