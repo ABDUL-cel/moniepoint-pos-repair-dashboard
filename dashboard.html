@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moniepoint POS Repair Dashboard</title>
+  
+  <!-- MONIEPOINT FAVICON (BROWSER TAB ICON) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
+
   <link rel="stylesheet" href="css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,11 +18,23 @@
   <!-- ==========================================
        1. HEADER / USER PROFILE & ACTIONS
        ========================================== -->
-  <header>
-    <div class="user-info">
-      <h2 id="techGreeting">Technician</h2>
-      <span id="techIdDisplay">ID: ---</span>
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="brand-section" style="display: flex; align-items: center; gap: 16px;">
+      <!-- MONIEPOINT LOGO (HEADER) -->
+      <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#0052FF"/>
+          <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
+        </svg>
+        <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary, #0052FF); letter-spacing: -0.5px;">Moniepoint</span>
+      </div>
+      
+      <div class="user-info" style="border-left: 2px solid var(--border-color, #E5E7EB); padding-left: 16px;">
+        <h2 id="techGreeting" style="margin: 0; font-size: 1.1rem;">Technician</h2>
+        <span id="techIdDisplay" style="font-size: 0.8rem; color: var(--text-muted);">ID: ---</span>
+      </div>
     </div>
+
     <div class="header-actions">
       <button id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme">🌙</button>
       <button class="logout-btn" onclick="logout()">Logout</button>
@@ -48,9 +64,21 @@
        ========================================== -->
   <div class="grid-container">
 
-    <!-- FORM: Log POS Repair -->
+    <!-- FORM: Log POS Repair (BODY WITH BRANDED HEADER) -->
     <div class="card">
-      <h3>📝 Log Terminal Repair</h3>
+      <div class="card-header-brand" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+        <h3 style="margin: 0;">📝 Log Terminal Repair</h3>
+        
+        <!-- MONIEPOINT LOGO & BADGE (BODY FORM CARD) -->
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(0, 82, 255, 0.08); padding: 4px 8px; border-radius: 6px;">
+          <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="8" fill="#0052FF"/>
+            <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
+          </svg>
+          <span style="font-size: 0.7rem; font-weight: 800; color: #0052FF; text-transform: uppercase; letter-spacing: 0.5px;">Moniepoint Field Ops</span>
+        </div>
+      </div>
+
       <form id="repairForm">
         <div class="form-group">
           <label for="serialNumber">Terminal Serial Number (S/N)</label>
