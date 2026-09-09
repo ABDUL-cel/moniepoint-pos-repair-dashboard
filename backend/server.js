@@ -11,7 +11,11 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
@@ -215,12 +219,11 @@ app.post('/api/auth/login', async (req, res) => {
 /*                           TECHNICIAN REPAIR ROUTES                         */
 /* -------------------------------------------------------------------------- */
 
-// Log a New Terminal Repair (With Optional Custom Date Support)
+// Log a New Terminal Repair
 app.post('/api/repairs/log', authenticateToken, async (req, res) => {
   try {
     const { serialNumber, merchantName, faultType, status, repairDate } = req.body;
     
-    // Uses provided repairDate, falling back to current UTC date if omitted
     const targetDate = repairDate || getTodayDate();
 
     if (!serialNumber || !merchantName || !faultType) {
@@ -242,7 +245,6 @@ app.post('/api/repairs/log', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to record repair log', error: error.message });
   }
 });
-
 
 // Fetch Dashboard Metrics & Recent Repairs
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
@@ -362,3 +364,4 @@ app.post('/api/monthly/missed-weeks', authenticateToken, async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Moniepoint Tech Portal running on port ${PORT}`));
+
