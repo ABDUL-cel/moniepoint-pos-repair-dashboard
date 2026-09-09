@@ -14,10 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    /* RESPONSIVE MOBILE FIXES */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     
     body {
       margin: 0;
@@ -27,7 +24,7 @@
 
     .kpi-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 12px;
       margin-bottom: 20px;
       width: 100%;
@@ -60,27 +57,19 @@
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 8px;
-      }
-      .brand-title {
-        font-size: 1rem !important;
-      }
-      .header-actions button {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
+      body { padding: 8px; }
+      .brand-title { font-size: 1rem !important; }
+      .header-actions button { padding: 6px 10px; font-size: 0.8rem; }
     }
   </style>
 </head>
 <body>
 
   <!-- ==========================================
-       1. HEADER / USER PROFILE & ACTIONS
+       1. HEADER / USER PROFILE
        ========================================== -->
   <header style="display: flex; justify-content: space-between; align-items: center;">
     <div class="brand-section" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <!-- MONIEPOINT LOGO (HEADER) -->
       <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
         <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="8" fill="#0052FF"/>
@@ -128,18 +117,17 @@
        ========================================== -->
   <div class="grid-container">
 
-    <!-- FORM: Log POS Repair (BODY WITH BRANDED HEADER) -->
+    <!-- FORM: LOG REPAIR -->
     <div class="card">
       <div class="card-header-brand" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 8px;">
         <h3 style="margin: 0; font-size: 1.1rem;">📝 Log Terminal Repair</h3>
         
-        <!-- MONIEPOINT LOGO & BADGE (BODY FORM CARD) -->
         <div style="display: flex; align-items: center; gap: 6px; background: rgba(0, 82, 255, 0.08); padding: 4px 8px; border-radius: 6px;">
           <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="40" height="40" rx="8" fill="#0052FF"/>
             <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
           </svg>
-          <span style="font-size: 0.7rem; font-weight: 800; color: #0052FF; text-transform: uppercase; letter-spacing: 0.5px;">Moniepoint Field Ops</span>
+          <span style="font-size: 0.7rem; font-weight: 800; color: #0052FF; text-transform: uppercase;">Moniepoint Field Ops</span>
         </div>
       </div>
 
@@ -180,7 +168,7 @@
       </form>
     </div>
 
-    <!-- DAILY TARGET (15 Terminals/Day) -->
+    <!-- DAILY TARGET (15/Day) -->
     <div class="card">
       <h3>🎯 Daily Repair Target (15/Day)</h3>
       
@@ -205,7 +193,7 @@
       </div>
     </div>
 
-    <!-- WEEKLY BONUS TARGET (72 Terminals = ₦30,000) -->
+    <!-- WEEKLY BONUS TARGET (72 = ₦30,000) -->
     <div class="card">
       <h3>🏆 Weekly Bonus Target (72 = ₦30,000)</h3>
       
@@ -261,37 +249,44 @@
       </div>
     </div>
 
-    <!-- TRANSPORT ALLOWANCE TRACKER -->
+    <!-- TRANSPORT ALLOWANCE TRACKER CARD -->
     <div class="card">
-      <h3>🚗 Weekly Transport Allowance Tracker</h3>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">Select field days active (₦4,000 / day):</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h3 style="margin: 0;">🚗 Weekly Transport Allowance</h3>
+        <span style="font-size: 0.75rem; font-weight: 700; background: rgba(0, 82, 255, 0.1); color: var(--primary, #0052FF); padding: 2px 8px; border-radius: 4px;">₦4,000 / Day</span>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px;">Active field days for this week:</p>
 
-      <div class="days-grid" style="display: flex; justify-content: space-between; gap: 4px; flex-wrap: wrap;">
-        <div class="day-item" style="text-align: center;">
-          <label for="Mon" style="display: block; font-size: 0.75rem;">Mon</label>
-          <input type="checkbox" id="Mon" onchange="updateTransport()">
+      <div class="days-grid" style="display: flex; justify-content: space-between; gap: 6px; background: var(--bg-color, #F4F6F8); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color, #E5E7EB);">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Mon" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Mon</label>
+          <input type="checkbox" id="Mon" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
         </div>
-        <div class="day-item" style="text-align: center;">
-          <label for="Tue" style="display: block; font-size: 0.75rem;">Tue</label>
-          <input type="checkbox" id="Tue" onchange="updateTransport()">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Tue" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Tue</label>
+          <input type="checkbox" id="Tue" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
         </div>
-        <div class="day-item" style="text-align: center;">
-          <label for="Wed" style="display: block; font-size: 0.75rem;">Wed</label>
-          <input type="checkbox" id="Wed" onchange="updateTransport()">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Wed" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Wed</label>
+          <input type="checkbox" id="Wed" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
         </div>
-        <div class="day-item" style="text-align: center;">
-          <label for="Thu" style="display: block; font-size: 0.75rem;">Thu</label>
-          <input type="checkbox" id="Thu" onchange="updateTransport()">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Thu" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Thu</label>
+          <input type="checkbox" id="Thu" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
         </div>
-        <div class="day-item" style="text-align: center;">
-          <label for="Fri" style="display: block; font-size: 0.75rem;">Fri</label>
-          <input type="checkbox" id="Fri" onchange="updateTransport()">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Fri" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Fri</label>
+          <input type="checkbox" id="Fri" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
-        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Calculated Transport Total</span>
-        <span style="font-size: 1.3rem; font-weight: 800; color: var(--primary);" id="transportTotal">₦0</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color, #E5E7EB);">
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: block;">Calculated Transport Total</span>
+          <span id="activeDaysCount" style="font-size: 0.75rem; color: var(--text-muted);">0 days active</span>
+        </div>
+        <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary, #0052FF);" id="transportTotal">₦0</span>
       </div>
     </div>
 
