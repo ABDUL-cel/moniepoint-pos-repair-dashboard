@@ -311,6 +311,26 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 });
+// GET /api/repairs/export?range=weekly OR ?range=monthly
+app.get('/api/repairs/export', authenticateToken, async (req, res) => {
+  try {
+    const { range } = req.query;
+    const days = range === 'monthly' ? 30 : 7;
+    
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const repairs = await RepairLog.find({
+      userId: req.user.id,
+      createdAt: { $gte: startDate }
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(repairs);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch export history', error: error.message });
+  }
+});
+
 
 // Update Weekly Transport Allowance
 app.post('/api/transport/update', authenticateToken, async (req, res) => {
