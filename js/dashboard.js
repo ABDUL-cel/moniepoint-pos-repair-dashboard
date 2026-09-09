@@ -191,22 +191,21 @@ function renderLogsTable(logs) {
   });
 }
 
-// Log Terminal Repair Form
-const repairForm = document.getElementById('repairForm');
-if (repairForm) {
-  repairForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
 
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerText = 'Documenting...';
+// Automatically set the date picker default to Today (YYYY-MM-DD)
+const dateInput = document.getElementById('repairDate');
+if (dateInput) {
+  dateInput.value = new Date().toISOString().split('T')[0];
+}
 
-    const payload = {
-      serialNumber: document.getElementById('serialNumber').value.trim(),
-      merchantName: document.getElementById('merchantName').value.trim(),
-      faultType: document.getElementById('faultType').value,
-      status: document.getElementById('status').value
-    };
+// Update the form submission payload:
+const payload = {
+  serialNumber: document.getElementById('serialNumber').value.trim(),
+  merchantName: document.getElementById('merchantName').value.trim(),
+  faultType: document.getElementById('faultType').value,
+  status: document.getElementById('status').value,
+  repairDate: document.getElementById('repairDate').value // Sent to custom date endpoint handler
+};
 
     try {
       const res = await fetch(`${API_URL}/api/repairs/log`, {
