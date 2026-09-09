@@ -14,7 +14,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    /* FALLBACK & CARD CENTERING STYLES */
     :root {
       --primary: #0052FF;
       --primary-hover: #0043D1;
@@ -24,6 +23,8 @@
       --text-muted: #6B7280;
       --border-color: #E5E7EB;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -48,7 +49,7 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 32px 24px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .brand-header {
@@ -93,19 +94,40 @@
       color: var(--text-main);
     }
 
-    .form-group input {
+    .form-group input[type="text"],
+    .form-group input[type="password"] {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border-color);
       border-radius: 6px;
       font-size: 0.95rem;
-      box-sizing: border-box;
       outline: none;
       transition: border-color 0.2s;
     }
 
     .form-group input:focus {
       border-color: var(--primary);
+    }
+
+    /* TRANSPORT SELECTION BOXES */
+    .days-picker {
+      display: flex;
+      justify-content: space-between;
+      background: var(--bg-color);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .day-check {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
     }
 
     .btn-primary {
@@ -137,10 +159,6 @@
       color: var(--primary);
       text-decoration: none;
       font-weight: 600;
-    }
-
-    .toggle-auth a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -175,7 +193,7 @@
         <p class="toggle-auth">New Technician? <a href="#" onclick="toggleAuth(true)">Register account</a></p>
       </form>
 
-      <!-- REGISTER FORM -->
+      <!-- REGISTER FORM WITH TRANSPORT DAYS -->
       <form id="registerForm" style="display: none;">
         <h2>Technician Registration</h2>
         <p class="auth-subtitle">Create a field technician account</p>
@@ -184,10 +202,24 @@
           <label for="regName">Full Name</label>
           <input type="text" id="regName" placeholder="e.g. John Doe" required>
         </div>
+
         <div class="form-group">
           <label for="regPassword">Password</label>
           <input type="password" id="regPassword" placeholder="••••••••" required>
         </div>
+
+        <!-- NEW TRANSPORT DAYS FIELD -->
+        <div class="form-group">
+          <label>Standard Field Days (₦4,000 / day)</label>
+          <div class="days-picker">
+            <label class="day-check"><input type="checkbox" class="reg-day" value="Mon" checked> Mon</label>
+            <label class="day-check"><input type="checkbox" class="reg-day" value="Tue" checked> Tue</label>
+            <label class="day-check"><input type="checkbox" class="reg-day" value="Wed" checked> Wed</label>
+            <label class="day-check"><input type="checkbox" class="reg-day" value="Thu" checked> Thu</label>
+            <label class="day-check"><input type="checkbox" class="reg-day" value="Fri" checked> Fri</label>
+          </div>
+        </div>
+
         <button type="submit" class="btn-primary" id="regBtn">Register Account</button>
         <p class="toggle-auth">Already registered? <a href="#" onclick="toggleAuth(false)">Login here</a></p>
       </form>
