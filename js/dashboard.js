@@ -6,7 +6,7 @@ if (!token || !user) {
   window.location.href = 'index.html';
 }
 
-// Set Greeting
+// User Greetings
 if (document.getElementById('techGreeting')) {
   document.getElementById('techGreeting').innerText = user.name || 'Technician';
 }
@@ -14,7 +14,7 @@ if (document.getElementById('techIdDisplay')) {
   document.getElementById('techIdDisplay').innerText = `ID: ${user.techId || user.agentId || '---'}`;
 }
 
-// Theme Logic
+// Theme Handlers
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -36,7 +36,7 @@ function updateThemeButton(theme) {
 
 initTheme();
 
-// --- FETCH DASHBOARD DATA FROM BACKEND ---
+// LOAD DASHBOARD DATA
 async function loadDashboard() {
   try {
     const res = await fetch(`${API_URL}/api/dashboard`, {
@@ -58,14 +58,14 @@ async function loadDashboard() {
     if (document.getElementById('monthlyRepairCount')) document.getElementById('monthlyRepairCount').innerText = monthlyCount;
     if (document.getElementById('yearlyRepairCount')) document.getElementById('yearlyRepairCount').innerText = yearlyCount;
 
-    // 2. Daily Target Calculations (15 / Day)
+    // 2. Daily Target Calculations
     const dailyPct = Math.min(Math.round((todayCount / 15) * 100), 100);
     if (document.getElementById('dailyCountText')) document.getElementById('dailyCountText').innerText = todayCount;
     if (document.getElementById('dailyCircle')) document.getElementById('dailyCircle').setAttribute('stroke-dasharray', `${dailyPct}, 100`);
     if (document.getElementById('dailyBar')) document.getElementById('dailyBar').style.width = `${dailyPct}%`;
     if (document.getElementById('dailyBarLabel')) document.getElementById('dailyBarLabel').innerText = `${dailyPct}%`;
 
-    // 3. Weekly Bonus Target Calculations (72 = ₦30,000)
+    // 3. Weekly Bonus Calculations
     const weeklyPct = Math.min(Math.round((weeklyCount / 72) * 100), 100);
     if (document.getElementById('weeklyCountText')) document.getElementById('weeklyCountText').innerText = weeklyCount;
     if (document.getElementById('weeklyCircle')) document.getElementById('weeklyCircle').setAttribute('stroke-dasharray', `${weeklyPct}, 100`);
@@ -75,21 +75,22 @@ async function loadDashboard() {
     const bonusEarned = weeklyCount >= 72 ? 30000 : Math.round((weeklyCount / 72) * 30000);
     if (document.getElementById('bonusEarnedText')) document.getElementById('bonusEarnedText').innerText = `₦${bonusEarned.toLocaleString()}`;
 
-    // 4. Monthly Tier Pay Calculation
+    // 4. Monthly Tier UI Sync
     const missedSelect = document.getElementById('missedWeeksSelect');
     if (missedSelect) missedSelect.value = missedWeeks;
     calculateMonthlyPayUI(missedWeeks);
 
-    // 5. Transport Checkbox Sync
+    // 5. Populate Transport Allowance Checkboxes (From Database / Registration)
+    const transportObj = data.transportDays || user.defaultTransportDays || {};
     ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(day => {
       const checkbox = document.getElementById(day);
-      if (checkbox && data.transportDays) {
-        checkbox.checked = !!data.transportDays[day];
+      if (checkbox) {
+        checkbox.checked = transportObj[day] !== undefined ? !!transportObj[day] : true;
       }
     });
     calculateTransportUI();
 
-    // 6. Render Logs Table
+    // 6. Populate Table
     renderLogsTable(data.recentRepairs);
 
   } catch (err) {
@@ -97,29 +98,17 @@ async function loadDashboard() {
   }
 }
 
-// Calculate Monthly Tier Payout Logic
+// Calculate Monthly Tier Payout
 function calculateMonthlyPayUI(missedCount) {
   let totalPayout = 200000;
 
   switch (parseInt(missedCount, 10)) {
-    case 0:
-      totalPayout = 320000;
-      break;
-    case 1:
-      totalPayout = 300000;
-      break;
-    case 2:
-      totalPayout = 280000;
-      break;
-    case 3:
-      totalPayout = 200000;
-      break;
-    case 4:
-      totalPayout = 200000;
-      break;
-    default:
-      totalPayout = 200000;
-      break;
+    case 0: totalPayout = 320000; break;
+    case 1: totalPayout = 300000; break;
+    case 2: totalPayout = 280000; break;
+    case 3: totalPayout = 200000; break;
+    case 4: totalPayout = 200000; break;
+    default: totalPayout = 200000; break;
   }
 
   const payoutEl = document.getElementById('monthlyPayoutText');
@@ -128,7 +117,6 @@ function calculateMonthlyPayUI(missedCount) {
   }
 }
 
-// Send Selected Missed Weeks Tier to Backend
 async function updateMissedWeeks(missedValue) {
   calculateMonthlyPayUI(missedValue);
 
@@ -142,11 +130,11 @@ async function updateMissedWeeks(missedValue) {
       body: JSON.stringify({ missedWeeks: parseInt(missedValue, 10) })
     });
   } catch (err) {
-    console.error('Failed to sync missed weeks to backend:', err);
+    console.error('Failed to sync missed weeks:', err);
   }
 }
 
-// Render Table Logs with custom CSS Badges and Date & Time
+// Render Table
 function renderLogsTable(logs) {
   const tableBody = document.getElementById('repairLogsTable');
   if (!tableBody) return;
@@ -190,7 +178,7 @@ function renderLogsTable(logs) {
   });
 }
 
-// Submit Form to Backend
+// Log Terminal Repair Form
 const repairForm = document.getElementById('repairForm');
 if (repairForm) {
   repairForm.addEventListener('submit', async (e) => {
@@ -233,7 +221,7 @@ if (repairForm) {
   });
 }
 
-// Update Transport
+// Transport Checkbox Updates
 async function updateTransport() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const transportDays = {};
@@ -241,6 +229,8 @@ async function updateTransport() {
     const el = document.getElementById(day);
     transportDays[day] = el ? el.checked : false;
   });
+
+  calculateTransportUI();
 
   try {
     await fetch(`${API_URL}/api/transport/update`, {
@@ -251,15 +241,15 @@ async function updateTransport() {
       },
       body: JSON.stringify({ transportDays })
     });
-    calculateTransportUI();
   } catch (err) {
-    alert('Failed to update transport selection');
+    console.error('Failed to sync transport selection');
   }
 }
 
 function calculateTransportUI() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   let checkedCount = 0;
+  
   days.forEach(day => {
     const el = document.getElementById(day);
     if (el && el.checked) checkedCount++;
@@ -268,6 +258,11 @@ function calculateTransportUI() {
   const transportTotalEl = document.getElementById('transportTotal');
   if (transportTotalEl) {
     transportTotalEl.innerText = `₦${(checkedCount * 4000).toLocaleString()}`;
+  }
+
+  const countLabelEl = document.getElementById('activeDaysCount');
+  if (countLabelEl) {
+    countLabelEl.innerText = `${checkedCount} day${checkedCount === 1 ? '' : 's'} active`;
   }
 }
 
