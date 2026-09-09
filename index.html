@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moniepoint POS Repair Auth</title>
   
-  <!-- MONIEPOINT FAVICON -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
 
   <link rel="stylesheet" href="css/styles.css">
@@ -95,6 +94,7 @@
     }
 
     .form-group input[type="text"],
+    .form-group input[type="number"],
     .form-group input[type="password"] {
       width: 100%;
       padding: 10px 12px;
@@ -109,7 +109,6 @@
       border-color: var(--primary);
     }
 
-    /* TRANSPORT SELECTION BOXES */
     .days-picker {
       display: flex;
       justify-content: space-between;
@@ -167,7 +166,6 @@
   <div class="auth-container">
     <div class="auth-card">
       
-      <!-- BRAND LOGO HEADER -->
       <div class="brand-header">
         <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="40" height="40" rx="8" fill="#0052FF"/>
@@ -193,7 +191,7 @@
         <p class="toggle-auth">New Technician? <a href="#" onclick="toggleAuth(true)">Register account</a></p>
       </form>
 
-      <!-- REGISTER FORM WITH TRANSPORT DAYS -->
+      <!-- REGISTER FORM -->
       <form id="registerForm" style="display: none;">
         <h2>Technician Registration</h2>
         <p class="auth-subtitle">Create a field technician account</p>
@@ -208,9 +206,14 @@
           <input type="password" id="regPassword" placeholder="••••••••" required>
         </div>
 
-        <!-- NEW TRANSPORT DAYS FIELD -->
+        <!-- TRANSPORT ALLOWANCE CONFIGURATION -->
         <div class="form-group">
-          <label>Standard Field Days (₦4,000 / day)</label>
+          <label for="regDailyRate">Daily Transport Rate (₦)</label>
+          <input type="number" id="regDailyRate" value="4000" min="0" step="500" placeholder="4000" required>
+        </div>
+
+        <div class="form-group">
+          <label>Standard Active Days</label>
           <div class="days-picker">
             <label class="day-check"><input type="checkbox" class="reg-day" value="Mon" checked> Mon</label>
             <label class="day-check"><input type="checkbox" class="reg-day" value="Tue" checked> Tue</label>
