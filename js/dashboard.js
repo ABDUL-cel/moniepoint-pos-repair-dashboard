@@ -80,7 +80,12 @@ async function loadDashboard() {
     if (missedSelect) missedSelect.value = missedWeeks;
     calculateMonthlyPayUI(missedWeeks);
 
-    // 5. Populate Transport Allowance Checkboxes (From Database / Registration)
+    // 5. Populate Transport Rate & Checkboxes
+    const rateInput = document.getElementById('dailyTransportRate');
+    if (rateInput) {
+      rateInput.value = data.transportRate || user.transportRate || 4000;
+    }
+
     const transportObj = data.transportDays || user.defaultTransportDays || {};
     ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(day => {
       const checkbox = document.getElementById(day);
@@ -221,7 +226,7 @@ if (repairForm) {
   });
 }
 
-// Transport Checkbox Updates
+// Transport Allowance Update (Saves rate and selected days)
 async function updateTransport() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const transportDays = {};
@@ -229,6 +234,9 @@ async function updateTransport() {
     const el = document.getElementById(day);
     transportDays[day] = el ? el.checked : false;
   });
+
+  const rateInput = document.getElementById('dailyTransportRate');
+  const transportRate = rateInput ? parseFloat(rateInput.value) || 0 : 4000;
 
   calculateTransportUI();
 
@@ -239,7 +247,7 @@ async function updateTransport() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ transportDays })
+      body: JSON.stringify({ transportDays, transportRate })
     });
   } catch (err) {
     console.error('Failed to sync transport selection');
@@ -254,10 +262,13 @@ function calculateTransportUI() {
     const el = document.getElementById(day);
     if (el && el.checked) checkedCount++;
   });
+
+  const rateInput = document.getElementById('dailyTransportRate');
+  const dailyRate = rateInput ? parseFloat(rateInput.value) || 0 : 4000;
   
   const transportTotalEl = document.getElementById('transportTotal');
   if (transportTotalEl) {
-    transportTotalEl.innerText = `₦${(checkedCount * 4000).toLocaleString()}`;
+    transportTotalEl.innerText = `₦${(checkedCount * dailyRate).toLocaleString()}`;
   }
 
   const countLabelEl = document.getElementById('activeDaysCount');
