@@ -4,201 +4,120 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moniepoint POS Repair Dashboard</title>
+  
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
-
+  <link rel="stylesheet" href="css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --primary: #0357EE;
-      --primary-subtle: rgba(3, 87, 238, 0.08);
-      --bg-color: #F4F6F9;
-      --card-bg: #FFFFFF;
-      --text-main: #02102D;
-      --text-muted: #64748B;
-      --border-color: #E2E8F0;
-      --radius: 14px;
-      --shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-    }
-
-    [data-theme="dark"] {
-      --bg-color: #020B1A;
-      --card-bg: #0B1938;
-      --text-main: #F8FAFC;
-      --text-muted: #94A3B8;
-      --border-color: #1E293B;
-      --shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; overflow-x: hidden; }
-
-    header {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 12px; overflow-x: hidden; }
 
     .kpi-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
       margin-bottom: 20px;
-    }
-
-    .kpi-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
-
-    .kpi-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .kpi-value {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-top: 6px;
+      width: 100%;
     }
 
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 16px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-    input, select {
       width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--card-bg);
-      color: var(--text-main);
-      font-size: 0.9rem;
-      font-weight: 600;
-      outline: none;
     }
-    input:focus, select:focus { border-color: var(--primary); }
 
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-primary:hover { background: #0044CC; }
+    .card { width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; }
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    header { flex-wrap: wrap; gap: 12px; padding-bottom: 12px; }
 
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
+    @media (max-width: 480px) {
+      body { padding: 8px; }
+      .brand-title { font-size: 1rem !important; }
+      .header-actions button { padding: 6px 10px; font-size: 0.8rem; }
     }
-    .badge-fixed { background: rgba(5, 150, 105, 0.12); color: #059669; }
-    .badge-replaced { background: rgba(3, 87, 238, 0.12); color: #0357EE; }
-    .badge-pending { background: rgba(217, 119, 6, 0.12); color: #D97706; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#0357EE"/>
-        <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
-      </svg>
-      <div>
-        <h2 id="techGreeting" style="font-size: 1.05rem; font-weight: 800;">Technician</h2>
-        <span id="techIdDisplay" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">ID: ---</span>
+  <!-- 1. HEADER -->
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="brand-section" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#0052FF"/>
+          <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
+        </svg>
+        <span class="brand-title" style="font-size: 1.25rem; font-weight: 800; color: var(--primary, #0052FF); letter-spacing: -0.5px;">Moniepoint</span>
+      </div>
+      
+      <div class="user-info" style="border-left: 2px solid var(--border-color, #E5E7EB); padding-left: 12px;">
+        <h2 id="techGreeting" style="margin: 0; font-size: 1rem;">Technician</h2>
+        <span id="techIdDisplay" style="font-size: 0.75rem; color: var(--text-muted);">ID: ---</span>
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <button id="themeToggleBtn" onclick="toggleTheme()" style="background: none; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 8px; cursor: pointer;">🌙</button>
-      <button onclick="logout()" style="background: #EF4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">Logout</button>
+    <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
+      <button id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme">🌙</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </header>
 
-  <!-- KPI METRICS -->
+  <!-- 2. KPI METRICS (UPDATED PROGRESS FORMAT) -->
   <div class="kpi-container">
-    <div class="kpi-card">
-      <span class="kpi-title">Today's Repairs</span>
-      <div id="todayRepairCount" class="kpi-value" style="color: var(--primary);">0 / 15</div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Today's Repairs</span>
+      <div id="todayRepairCount" style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-top: 4px;">0 / 15</div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-title">Weekly Repairs</span>
-      <div id="weeklyRepairCount" class="kpi-value" style="color: #0284C7;">0 / 72</div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Weekly Repairs</span>
+      <div id="weeklyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: #0284C7; margin-top: 4px;">0 / 72</div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-title">Monthly Repairs</span>
-      <div id="monthlyRepairCount" class="kpi-value" style="color: #059669;">0 / 300</div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Monthly Repairs</span>
+      <div id="monthlyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: #059669; margin-top: 4px;">0 / 300</div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-title">Year-to-Date</span>
-      <div id="yearlyRepairCount" class="kpi-value">0 Total</div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Year-to-Date</span>
+      <div id="yearlyRepairCount" style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 4px;">0 Total</div>
     </div>
   </div>
 
-  <!-- MAIN GRID -->
+  <!-- 3. MAIN DASHBOARD GRID -->
   <div class="grid-container">
 
-    <!-- LOG REPAIR FORM -->
+    <!-- FORM: LOG REPAIR -->
     <div class="card">
-      <h3 style="margin-bottom: 16px; font-size: 1rem; font-weight: 800; color: var(--primary);">📝 Log Terminal Repair</h3>
-      <form id="repairForm">
-        <div class="form-group">
-          <label for="repairDate">Log Date (Default: Today)</label>
-          <input type="date" id="repairDate" required>
+      <div class="card-header-brand" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 8px;">
+        <h3 style="margin: 0; font-size: 1.1rem;">📝 Log Terminal Repair</h3>
+        
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(0, 82, 255, 0.08); padding: 4px 8px; border-radius: 6px;">
+          <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="8" fill="#0052FF"/>
+            <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
+          </svg>
+          <span style="font-size: 0.7rem; font-weight: 800; color: #0052FF; text-transform: uppercase;">Moniepoint Field Ops</span>
         </div>
+      </div>
 
+      <form id="repairForm">
         <div class="form-group">
           <label for="serialNumber">Terminal Serial Number (S/N)</label>
           <input type="text" id="serialNumber" placeholder="e.g. MP-8830192" required>
         </div>
 
         <div class="form-group">
-          <label for="merchantName">Merchant Name</label>
+          <label for="merchantName">Merchant / Business Name</label>
           <input type="text" id="merchantName" placeholder="e.g. Apex Ventures" required>
         </div>
 
         <div class="form-group">
           <label for="faultType">Fault Type</label>
           <select id="faultType" required>
-            <option value="" disabled selected>Select fault...</option>
+            <option value="" disabled selected>Select diagnosed fault...</option>
             <option value="Battery/Power Defect">Battery / Power Defect</option>
             <option value="Screen/Display Damage">Screen / Display Damage</option>
             <option value="Printer/Paper Jam">Printer / Paper Jam</option>
@@ -223,20 +142,21 @@
 
     <!-- DAILY TARGET -->
     <div class="card">
-      <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 12px;">🎯 Daily Target (15/Day)</h3>
-      <div style="position: relative; width: 120px; height: 120px; margin: 16px auto;">
-        <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
-          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-color)" stroke-width="3.5" />
-          <path id="dailyCircle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--primary)" stroke-width="3.5" stroke-linecap="round" />
+      <h3>🎯 Daily Repair Target (15/Day)</h3>
+      
+      <div class="circle-wrapper" style="position: relative; width: 130px; height: 130px; margin: 16px auto;">
+        <svg viewBox="0 0 36 36" class="circle-chart" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+          <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-color)" stroke-width="3.8" />
+          <path id="dailyCircle" class="circle-progress" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--primary)" stroke-width="3.8" stroke-linecap="round" />
         </svg>
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-          <div id="dailyCountText" style="font-size: 1.5rem; font-weight: 800;">0</div>
-          <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">/ 15 Terminals</div>
+        <div class="circle-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+          <div id="dailyCountText" style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">/ 15 Terminals</div>
         </div>
       </div>
 
-      <div style="width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: 12px;">
-        <div id="dailyBar" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
+      <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: 12px;">
+        <div id="dailyBar" class="progress-bar-fill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease;"></div>
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
         <span>0</span>
@@ -245,23 +165,126 @@
       </div>
     </div>
 
-    <!-- RECENT LOGS TABLE -->
+    <!-- WEEKLY BONUS TARGET -->
+    <div class="card">
+      <h3>🏆 Weekly Bonus Target (72 = ₦30,000)</h3>
+      
+      <div class="circle-wrapper" style="position: relative; width: 130px; height: 130px; margin: 16px auto;">
+        <svg viewBox="0 0 36 36" class="circle-chart" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+          <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-color)" stroke-width="3.8" />
+          <path id="weeklyCircle" class="circle-progress" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#059669" stroke-width="3.8" stroke-linecap="round" />
+        </svg>
+        <div class="circle-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+          <div id="weeklyCountText" style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">/ 72 Terminals</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: 12px;">
+        <div id="weeklyBar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #059669; transition: width 0.4s ease;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 600;">
+        <span>0</span>
+        <span id="weeklyBarLabel">0%</span>
+        <span>72 Target</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Technical Bonus Earned</span>
+        <span style="font-size: 1.3rem; font-weight: 800; color: #059669;" id="bonusEarnedText">₦0</span>
+      </div>
+    </div>
+
+    <!-- MONTHLY EARNINGS TIER CARD -->
+    <div class="card">
+      <h3>💼 Monthly Earnings Tier Structure</h3>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border-color);">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Base Guaranteed Pay</span>
+        <span style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">₦200,000</span>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px; margin-bottom: 0;">
+        <label for="missedWeeksSelect">Missed Weekly Target Status</label>
+        <select id="missedWeeksSelect" onchange="updateMissedWeeks(this.value)">
+          <option value="0">0 Missed Weeks (Met All Targets - ₦320,000)</option>
+          <option value="1">1 Missed Week Target (₦300,000)</option>
+          <option value="2">2 Missed Weeks Target (₦280,000)</option>
+          <option value="3">3 Missed Weeks Target (₦200,000)</option>
+          <option value="4">4 Missed Weeks Target (₦200,000)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 2px solid var(--border-color);">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Projected Monthly Pay</span>
+        <span style="font-size: 1.3rem; font-weight: 800; color: #059669;" id="monthlyPayoutText">₦320,000</span>
+      </div>
+    </div>
+
+    <!-- TRANSPORT ALLOWANCE CARD -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+        <h3 style="margin: 0;">🚗 Weekly Transport Allowance</h3>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Rate: ₦</span>
+          <input type="number" id="dailyTransportRate" value="4000" min="0" step="500" oninput="updateTransport()" style="width: 85px; padding: 4px 6px; font-weight: 700; border: 1px solid var(--border-color); border-radius: 4px; text-align: right; font-size: 0.85rem;">
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">/day</span>
+        </div>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px;">Select active field days for this week:</p>
+
+      <div class="days-grid" style="display: flex; justify-content: space-between; gap: 6px; background: var(--bg-color, #F4F6F8); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color, #E5E7EB);">
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Mon" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Mon</label>
+          <input type="checkbox" id="Mon" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
+        </div>
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Tue" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Tue</label>
+          <input type="checkbox" id="Tue" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
+        </div>
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Wed" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Wed</label>
+          <input type="checkbox" id="Wed" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
+        </div>
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Thu" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Thu</label>
+          <input type="checkbox" id="Thu" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
+        </div>
+        <div class="day-item" style="text-align: center; flex: 1;">
+          <label for="Fri" style="display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px;">Fri</label>
+          <input type="checkbox" id="Fri" onchange="updateTransport()" style="width: 16px; height: 16px; cursor: pointer;">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-color, #E5E7EB);">
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: block;">Calculated Transport Total</span>
+          <span id="activeDaysCount" style="font-size: 0.75rem; color: var(--text-muted);">0 days active</span>
+        </div>
+        <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary, #0052FF);" id="transportTotal">₦0</span>
+      </div>
+    </div>
+
+    <!-- RECENT REPAIRS TABLE -->
     <div class="card" style="grid-column: 1 / -1;">
-      <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 12px;">📋 Documented Repairs</h3>
-      <div style="width: 100%; overflow-x: auto;">
+      <h3>📋 Today's Documented Repairs</h3>
+      <div class="table-responsive">
         <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
           <thead>
-            <tr style="text-align: left; border-bottom: 2px solid var(--border-color);">
-              <th style="padding: 8px; font-size: 0.75rem; color: var(--text-muted);">DATE</th>
-              <th style="padding: 8px; font-size: 0.75rem; color: var(--text-muted);">SERIAL NUMBER</th>
-              <th style="padding: 8px; font-size: 0.75rem; color: var(--text-muted);">MERCHANT</th>
-              <th style="padding: 8px; font-size: 0.75rem; color: var(--text-muted);">FAULT</th>
-              <th style="padding: 8px; font-size: 0.75rem; color: var(--text-muted);">STATUS</th>
+            <tr style="text-align: left;">
+              <th>Date & Time</th>
+              <th>Serial Number</th>
+              <th>Merchant Name</th>
+              <th>Diagnosed Fault</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody id="repairLogsTable">
             <tr>
-              <td colspan="5" style="padding: 16px 0; text-align: center; color: var(--text-muted);">Loading logs...</td>
+              <td colspan="5" style="padding: 16px 0; text-align: center; color: var(--text-muted);">
+                Loading repair logs...
+              </td>
             </tr>
           </tbody>
         </table>
@@ -273,4 +296,3 @@
   <script src="js/dashboard.js"></script>
 </body>
 </html>
-
