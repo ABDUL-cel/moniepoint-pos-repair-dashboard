@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moniepoint POS Repair Dashboard</title>
   
-  <!-- MONIEPOINT FAVICON -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
 
   <link rel="stylesheet" href="css/styles.css">
@@ -65,9 +64,7 @@
 </head>
 <body>
 
-  <!-- ==========================================
-       1. HEADER / USER PROFILE
-       ========================================== -->
+  <!-- 1. HEADER -->
   <header style="display: flex; justify-content: space-between; align-items: center;">
     <div class="brand-section" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
       <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
@@ -90,9 +87,7 @@
     </div>
   </header>
 
-  <!-- ==========================================
-       2. KPI SUMMARY METRICS (TODAY -> WEEKLY -> MONTHLY -> YEARLY)
-       ========================================== -->
+  <!-- 2. KPI METRICS -->
   <div class="kpi-container">
     <div class="card" style="text-align: center; padding: 12px;">
       <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Today's Repairs</span>
@@ -112,9 +107,7 @@
     </div>
   </div>
 
-  <!-- ==========================================
-       3. DASHBOARD MAIN GRID
-       ========================================== -->
+  <!-- 3. MAIN DASHBOARD GRID -->
   <div class="grid-container">
 
     <!-- FORM: LOG REPAIR -->
@@ -168,7 +161,7 @@
       </form>
     </div>
 
-    <!-- DAILY TARGET (15/Day) -->
+    <!-- DAILY TARGET -->
     <div class="card">
       <h3>🎯 Daily Repair Target (15/Day)</h3>
       
@@ -193,7 +186,7 @@
       </div>
     </div>
 
-    <!-- WEEKLY BONUS TARGET (72 = ₦30,000) -->
+    <!-- WEEKLY BONUS TARGET -->
     <div class="card">
       <h3>🏆 Weekly Bonus Target (72 = ₦30,000)</h3>
       
@@ -249,14 +242,18 @@
       </div>
     </div>
 
-    <!-- TRANSPORT ALLOWANCE TRACKER CARD -->
+    <!-- TRANSPORT ALLOWANCE CARD WITH CONFIGURABLE DAILY RATE -->
     <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
         <h3 style="margin: 0;">🚗 Weekly Transport Allowance</h3>
-        <span style="font-size: 0.75rem; font-weight: 700; background: rgba(0, 82, 255, 0.1); color: var(--primary, #0052FF); padding: 2px 8px; border-radius: 4px;">₦4,000 / Day</span>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Rate: ₦</span>
+          <input type="number" id="dailyTransportRate" value="4000" min="0" step="500" oninput="updateTransport()" style="width: 85px; padding: 4px 6px; font-weight: 700; border: 1px solid var(--border-color); border-radius: 4px; text-align: right; font-size: 0.85rem;">
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">/day</span>
+        </div>
       </div>
       
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px;">Active field days for this week:</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px;">Select active field days for this week:</p>
 
       <div class="days-grid" style="display: flex; justify-content: space-between; gap: 6px; background: var(--bg-color, #F4F6F8); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color, #E5E7EB);">
         <div class="day-item" style="text-align: center; flex: 1;">
