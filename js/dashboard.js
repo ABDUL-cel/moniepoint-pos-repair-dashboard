@@ -14,6 +14,12 @@ if (document.getElementById('techIdDisplay')) {
   document.getElementById('techIdDisplay').innerText = `ID: ${user.techId || user.agentId || '---'}`;
 }
 
+// Set Default Custom Log Date Picker to Today (YYYY-MM-DD)
+const repairDateInput = document.getElementById('repairDate');
+if (repairDateInput) {
+  repairDateInput.value = new Date().toISOString().split('T')[0];
+}
+
 // Theme Handlers
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
@@ -50,9 +56,8 @@ async function loadDashboard() {
     const weeklyCount = data.weeklyRepairsCount || 0;
     const monthlyCount = data.monthlyRepairsCount || 0;
     const yearlyCount = data.yearlyRepairsCount || 0;
-    const missedWeeks = data.missedWeeks !== undefined ? data.missedWeeks : 0;
 
-    // 1. KPI Counts as Progress Ratios
+    // 1. KPI Counts
     if (document.getElementById('todayRepairCount')) {
       document.getElementById('todayRepairCount').innerText = `${todayCount} / 15`;
     }
@@ -73,77 +78,11 @@ async function loadDashboard() {
     if (document.getElementById('dailyBar')) document.getElementById('dailyBar').style.width = `${dailyPct}%`;
     if (document.getElementById('dailyBarLabel')) document.getElementById('dailyBarLabel').innerText = `${dailyPct}%`;
 
-    // 3. Weekly Bonus Calculations
-    const weeklyPct = Math.min(Math.round((weeklyCount / 72) * 100), 100);
-    if (document.getElementById('weeklyCountText')) document.getElementById('weeklyCountText').innerText = weeklyCount;
-    if (document.getElementById('weeklyCircle')) document.getElementById('weeklyCircle').setAttribute('stroke-dasharray', `${weeklyPct}, 100`);
-    if (document.getElementById('weeklyBar')) document.getElementById('weeklyBar').style.width = `${weeklyPct}%`;
-    if (document.getElementById('weeklyBarLabel')) document.getElementById('weeklyBarLabel').innerText = `${weeklyPct}%`;
-
-    const bonusEarned = weeklyCount >= 72 ? 30000 : Math.round((weeklyCount / 72) * 30000);
-    if (document.getElementById('bonusEarnedText')) document.getElementById('bonusEarnedText').innerText = `₦${bonusEarned.toLocaleString()}`;
-
-    // 4. Monthly Tier UI Sync
-    const missedSelect = document.getElementById('missedWeeksSelect');
-    if (missedSelect) missedSelect.value = missedWeeks;
-    calculateMonthlyPayUI(missedWeeks);
-
-    // 5. Populate Transport Rate & Checkboxes
-    const rateInput = document.getElementById('dailyTransportRate');
-    if (rateInput) {
-      rateInput.value = data.transportRate || user.transportRate || 4000;
-    }
-
-    const transportObj = data.transportDays || user.defaultTransportDays || {};
-    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(day => {
-      const checkbox = document.getElementById(day);
-      if (checkbox) {
-        checkbox.checked = transportObj[day] !== undefined ? !!transportObj[day] : true;
-      }
-    });
-    calculateTransportUI();
-
-    // 6. Populate Table
+    // 3. Populate Recent Logs Table
     renderLogsTable(data.recentRepairs);
 
   } catch (err) {
     console.error('Dashboard Error:', err);
-  }
-}
-
-// Calculate Monthly Tier Payout
-function calculateMonthlyPayUI(missedCount) {
-  let totalPayout = 200000;
-
-  switch (parseInt(missedCount, 10)) {
-    case 0: totalPayout = 320000; break;
-    case 1: totalPayout = 300000; break;
-    case 2: totalPayout = 280000; break;
-    case 3: totalPayout = 200000; break;
-    case 4: totalPayout = 200000; break;
-    default: totalPayout = 200000; break;
-  }
-
-  const payoutEl = document.getElementById('monthlyPayoutText');
-  if (payoutEl) {
-    payoutEl.innerText = `₦${totalPayout.toLocaleString()}`;
-  }
-}
-
-async function updateMissedWeeks(missedValue) {
-  calculateMonthlyPayUI(missedValue);
-
-  try {
-    await fetch(`${API_URL}/api/monthly/missed-weeks`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ missedWeeks: parseInt(missedValue, 10) })
-    });
-  } catch (err) {
-    console.error('Failed to sync missed weeks:', err);
   }
 }
 
@@ -169,19 +108,12 @@ function renderLogsTable(logs) {
     if (log.status === 'Replaced Terminal') badgeClass = 'badge-replaced';
     if (log.status === 'Pending Part') badgeClass = 'badge-pending';
 
-    const logDate = log.createdAt || log.dateLogged ? new Date(log.createdAt || log.dateLogged) : new Date();
-    const formattedDateTime = logDate.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+    const logDate = log.repairDate || (log.createdAt ? new Date(log.createdAt).toISOString().split('T')[0] : '---');
 
     const row = document.createElement('tr');
     row.style.borderBottom = '1px solid var(--border-color)';
     row.innerHTML = `
-      <td style="padding: 10px 4px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">${formattedDateTime}</td>
+      <td style="padding: 10px 4px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">${logDate}</td>
       <td style="padding: 10px 4px; font-weight: 700;">${log.serialNumber}</td>
       <td style="padding: 10px 4px;">${log.merchantName}</td>
       <td style="padding: 10px 4px; color: var(--text-muted);">${log.faultType}</td>
@@ -191,7 +123,7 @@ function renderLogsTable(logs) {
   });
 }
 
-// Log Terminal Repair Form
+// Handle Terminal Repair Logging
 const repairForm = document.getElementById('repairForm');
 if (repairForm) {
   repairForm.addEventListener('submit', async (e) => {
@@ -202,6 +134,7 @@ if (repairForm) {
     submitBtn.innerText = 'Documenting...';
 
     const payload = {
+      repairDate: document.getElementById('repairDate').value,
       serialNumber: document.getElementById('serialNumber').value.trim(),
       merchantName: document.getElementById('merchantName').value.trim(),
       faultType: document.getElementById('faultType').value,
@@ -220,6 +153,8 @@ if (repairForm) {
 
       if (res.ok) {
         repairForm.reset();
+        // Reset date back to current day after form reset
+        if (repairDateInput) repairDateInput.value = new Date().toISOString().split('T')[0];
         await loadDashboard();
       } else {
         const data = await res.json();
@@ -234,60 +169,10 @@ if (repairForm) {
   });
 }
 
-// Transport Allowance Update
-async function updateTransport() {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  const transportDays = {};
-  days.forEach(day => {
-    const el = document.getElementById(day);
-    transportDays[day] = el ? el.checked : false;
-  });
-
-  const rateInput = document.getElementById('dailyTransportRate');
-  const transportRate = rateInput ? parseFloat(rateInput.value) || 0 : 4000;
-
-  calculateTransportUI();
-
-  try {
-    await fetch(`${API_URL}/api/transport/update`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ transportDays, transportRate })
-    });
-  } catch (err) {
-    console.error('Failed to sync transport selection');
-  }
-}
-
-function calculateTransportUI() {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  let checkedCount = 0;
-  
-  days.forEach(day => {
-    const el = document.getElementById(day);
-    if (el && el.checked) checkedCount++;
-  });
-
-  const rateInput = document.getElementById('dailyTransportRate');
-  const dailyRate = rateInput ? parseFloat(rateInput.value) || 0 : 4000;
-  
-  const transportTotalEl = document.getElementById('transportTotal');
-  if (transportTotalEl) {
-    transportTotalEl.innerText = `₦${(checkedCount * dailyRate).toLocaleString()}`;
-  }
-
-  const countLabelEl = document.getElementById('activeDaysCount');
-  if (countLabelEl) {
-    countLabelEl.innerText = `${checkedCount} day${checkedCount === 1 ? '' : 's'} active`;
-  }
-}
-
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
 
 loadDashboard();
+
