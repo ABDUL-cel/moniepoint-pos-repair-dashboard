@@ -50,7 +50,7 @@ if (loginForm) {
   });
 }
 
-// REGISTER SUBMIT (Includes selected transport days)
+// REGISTER SUBMIT (WITH CUSTOM TRANSPORT RATE & DAYS)
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
   registerForm.addEventListener('submit', async (e) => {
@@ -58,9 +58,9 @@ if (registerForm) {
     
     const name = document.getElementById('regName').value.trim();
     const password = document.getElementById('regPassword').value.trim();
+    const dailyRate = parseFloat(document.getElementById('regDailyRate').value) || 4000;
     const regBtn = document.getElementById('regBtn');
 
-    // Gather transport days selected
     const transportDays = {};
     document.querySelectorAll('.reg-day').forEach(cb => {
       transportDays[cb.value] = cb.checked;
@@ -73,7 +73,7 @@ if (registerForm) {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, password, transportDays })
+        body: JSON.stringify({ name, password, transportRate: dailyRate, transportDays })
       });
 
       const data = await res.json();
