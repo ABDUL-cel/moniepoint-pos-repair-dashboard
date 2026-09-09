@@ -48,12 +48,14 @@ async function loadDashboard() {
 
     const todayCount = data.todayRepairsCount || 0;
     const weeklyCount = data.weeklyRepairsCount || 0;
+    const monthlyCount = data.monthlyRepairsCount || 0;
     const yearlyCount = data.yearlyRepairsCount || 0;
     const missedWeeks = data.missedWeeks !== undefined ? data.missedWeeks : 0;
 
     // 1. KPI Counts
     if (document.getElementById('todayRepairCount')) document.getElementById('todayRepairCount').innerText = todayCount;
     if (document.getElementById('weeklyRepairCount')) document.getElementById('weeklyRepairCount').innerText = weeklyCount;
+    if (document.getElementById('monthlyRepairCount')) document.getElementById('monthlyRepairCount').innerText = monthlyCount;
     if (document.getElementById('yearlyRepairCount')) document.getElementById('yearlyRepairCount').innerText = yearlyCount;
 
     // 2. Daily Target Calculations (15 / Day)
@@ -73,7 +75,7 @@ async function loadDashboard() {
     const bonusEarned = weeklyCount >= 72 ? 30000 : Math.round((weeklyCount / 72) * 30000);
     if (document.getElementById('bonusEarnedText')) document.getElementById('bonusEarnedText').innerText = `₦${bonusEarned.toLocaleString()}`;
 
-    // 4. Monthly Tier Pay Calculation (0, 1, 2, 3, 4 Missed Weeks)
+    // 4. Monthly Tier Pay Calculation
     const missedSelect = document.getElementById('missedWeeksSelect');
     if (missedSelect) missedSelect.value = missedWeeks;
     calculateMonthlyPayUI(missedWeeks);
@@ -97,23 +99,23 @@ async function loadDashboard() {
 
 // Calculate Monthly Tier Payout Logic
 function calculateMonthlyPayUI(missedCount) {
-  let totalPayout = 200000; // ₦200,000 Base Salary Floor
+  let totalPayout = 200000;
 
   switch (parseInt(missedCount, 10)) {
     case 0:
-      totalPayout = 320000; // All weekly targets met (200k base + 120k bonuses)
+      totalPayout = 320000;
       break;
     case 1:
-      totalPayout = 300000; // 1 Week missed
+      totalPayout = 300000;
       break;
     case 2:
-      totalPayout = 280000; // 2 Weeks missed
+      totalPayout = 280000;
       break;
     case 3:
-      totalPayout = 200000; // 3 Weeks missed (Base salary)
+      totalPayout = 200000;
       break;
     case 4:
-      totalPayout = 200000; // 4 Weeks missed (Base salary)
+      totalPayout = 200000;
       break;
     default:
       totalPayout = 200000;
@@ -166,7 +168,6 @@ function renderLogsTable(logs) {
     if (log.status === 'Replaced Terminal') badgeClass = 'badge-replaced';
     if (log.status === 'Pending Part') badgeClass = 'badge-pending';
 
-    // Format Date & Time
     const logDate = log.createdAt || log.dateLogged ? new Date(log.createdAt || log.dateLogged) : new Date();
     const formattedDateTime = logDate.toLocaleString('en-US', {
       month: 'short',
