@@ -1,49 +1,200 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moniepoint Terminal Technician Auth</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>Moniepoint POS Repair Auth</title>
+  
+  <!-- MONIEPOINT FAVICON -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='8' fill='%230052FF'/><path d='M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z' fill='white'/></svg>">
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* FALLBACK & CARD CENTERING STYLES */
+    :root {
+      --primary: #0052FF;
+      --primary-hover: #0043D1;
+      --bg-color: #F4F6F8;
+      --card-bg: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --border-color: #E5E7EB;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .auth-card h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .auth-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .toggle-auth {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .toggle-auth a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .toggle-auth a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+
   <div class="auth-container">
     <div class="auth-card">
-      <div class="brand-header">Moniepoint Tech</div>
       
-      <!-- Login Form -->
+      <!-- BRAND LOGO HEADER -->
+      <div class="brand-header">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#0052FF"/>
+          <path d="M11 28V12L20 21L29 12V28H24V19L20 23L16 19V28H11Z" fill="white"/>
+        </svg>
+        <span class="brand-title">Moniepoint</span>
+      </div>
+
+      <!-- LOGIN FORM -->
       <form id="loginForm">
         <h2>Technician Login</h2>
-        <br>
+        <p class="auth-subtitle">Access your terminal repair workspace</p>
+        
         <div class="form-group">
-          <label>Technician ID</label>
+          <label for="loginTechId">Technician ID</label>
           <input type="text" id="loginTechId" placeholder="e.g. TECH-1042" required>
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label for="loginPassword">Password</label>
           <input type="password" id="loginPassword" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
         <p class="toggle-auth">New Technician? <a href="#" onclick="toggleAuth(true)">Register account</a></p>
       </form>
 
-      <!-- Register Form -->
+      <!-- REGISTER FORM -->
       <form id="registerForm" style="display: none;">
         <h2>Technician Registration</h2>
-        <br>
+        <p class="auth-subtitle">Create a field technician account</p>
+
         <div class="form-group">
-          <label>Full Name</label>
+          <label for="regName">Full Name</label>
           <input type="text" id="regName" placeholder="e.g. John Doe" required>
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label for="regPassword">Password</label>
           <input type="password" id="regPassword" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn-primary" id="regBtn">Register Account</button>
         <p class="toggle-auth">Already registered? <a href="#" onclick="toggleAuth(false)">Login here</a></p>
       </form>
+
     </div>
   </div>
+
   <script src="js/auth.js"></script>
 </body>
 </html>
