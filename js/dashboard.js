@@ -15,19 +15,19 @@ if (document.getElementById('techIdDisplay')) {
 }
 
 // Theme Handlers
-function initTheme() {
+window.initTheme = function() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeButton(savedTheme);
-}
+};
 
-function toggleTheme() {
+window.toggleTheme = function() {
   const currentTheme = document.documentElement.getAttribute('data-theme');
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
   updateThemeButton(newTheme);
-}
+};
 
 function updateThemeButton(theme) {
   const btn = document.getElementById('themeToggleBtn');
@@ -52,7 +52,7 @@ async function loadDashboard() {
     const yearlyCount = data.yearlyRepairsCount || 0;
     const missedWeeks = data.missedWeeks !== undefined ? data.missedWeeks : 0;
 
-    // 1. KPI Counts as Progress Ratios
+    // 1. KPI Counts
     if (document.getElementById('todayRepairCount')) {
       document.getElementById('todayRepairCount').innerText = `${todayCount} / 15`;
     }
@@ -66,14 +66,14 @@ async function loadDashboard() {
       document.getElementById('yearlyRepairCount').innerText = `${yearlyCount} Total`;
     }
 
-    // 2. Daily Target Circle & Bar Calculations
+    // 2. Daily Target
     const dailyPct = Math.min(Math.round((todayCount / 15) * 100), 100);
     if (document.getElementById('dailyCountText')) document.getElementById('dailyCountText').innerText = todayCount;
     if (document.getElementById('dailyCircle')) document.getElementById('dailyCircle').setAttribute('stroke-dasharray', `${dailyPct}, 100`);
     if (document.getElementById('dailyBar')) document.getElementById('dailyBar').style.width = `${dailyPct}%`;
     if (document.getElementById('dailyBarLabel')) document.getElementById('dailyBarLabel').innerText = `${dailyPct}%`;
 
-    // 3. Weekly Bonus Calculations
+    // 3. Weekly Bonus
     const weeklyPct = Math.min(Math.round((weeklyCount / 72) * 100), 100);
     if (document.getElementById('weeklyCountText')) document.getElementById('weeklyCountText').innerText = weeklyCount;
     if (document.getElementById('weeklyCircle')) document.getElementById('weeklyCircle').setAttribute('stroke-dasharray', `${weeklyPct}, 100`);
@@ -88,7 +88,7 @@ async function loadDashboard() {
     if (missedSelect) missedSelect.value = missedWeeks;
     calculateMonthlyPayUI(missedWeeks);
 
-    // 5. Populate Transport Rate & Checkboxes
+    // 5. Transport UI Sync
     const rateInput = document.getElementById('dailyTransportRate');
     if (rateInput) {
       rateInput.value = data.transportRate || user.transportRate || 4000;
@@ -103,7 +103,7 @@ async function loadDashboard() {
     });
     calculateTransportUI();
 
-    // 6. Populate Table
+    // 6. Table
     renderLogsTable(data.recentRepairs);
 
   } catch (err) {
@@ -130,7 +130,7 @@ function calculateMonthlyPayUI(missedCount) {
   }
 }
 
-async function updateMissedWeeks(missedValue) {
+window.updateMissedWeeks = async function(missedValue) {
   calculateMonthlyPayUI(missedValue);
 
   try {
@@ -145,7 +145,7 @@ async function updateMissedWeeks(missedValue) {
   } catch (err) {
     console.error('Failed to sync missed weeks:', err);
   }
-}
+};
 
 // Render Table
 function renderLogsTable(logs) {
@@ -191,63 +191,69 @@ function renderLogsTable(logs) {
   });
 }
 
-// Automatically set date picker default to Today if it exists in DOM
-const dateInput = document.getElementById('repairDate');
-if (dateInput) {
-  dateInput.value = new Date().toISOString().split('T')[0];
-}
+// Automatically set date picker default to Today if present
+document.addEventListener('DOMContentLoaded', () => {
+  const dateInput = document.getElementById('repairDate');
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+});
 
-// Log Terminal Repair Form Listener
-const repairForm = document.getElementById('repairForm');
-if (repairForm) {
-  repairForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Form Submission Event Listener
+document.addEventListener('DOMContentLoaded', () => {
+  const repairForm = document.getElementById('repairForm');
+  if (repairForm) {
+    repairForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Documenting...';
-    }
-
-    const payload = {
-      serialNumber: document.getElementById('serialNumber').value.trim(),
-      merchantName: document.getElementById('merchantName').value.trim(),
-      faultType: document.getElementById('faultType').value,
-      status: document.getElementById('status').value,
-      repairDate: document.getElementById('repairDate') ? document.getElementById('repairDate').value : new Date().toISOString().split('T')[0]
-    };
-
-    try {
-      const res = await fetch(`${API_URL}/api/repairs/log`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        repairForm.reset();
-        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-        await loadDashboard();
-      } else {
-        const data = await res.json();
-        alert(data.message || 'Failed to document repair');
-      }
-    } catch (err) {
-      alert('Failed to connect to server');
-    } finally {
+      const submitBtn = document.getElementById('submitBtn');
       if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerText = '+ Log Repair Record';
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Documenting...';
       }
-    }
-  });
-}
 
-// Transport Allowance Update
-async function updateTransport() {
+      const dateEl = document.getElementById('repairDate');
+
+      const payload = {
+        serialNumber: document.getElementById('serialNumber').value.trim(),
+        merchantName: document.getElementById('merchantName').value.trim(),
+        faultType: document.getElementById('faultType').value,
+        status: document.getElementById('status').value,
+        repairDate: dateEl ? dateEl.value : new Date().toISOString().split('T')[0]
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/api/repairs/log`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          repairForm.reset();
+          if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+          await loadDashboard();
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Failed to document repair');
+        }
+      } catch (err) {
+        alert('Failed to connect to server');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = '+ Log Repair Record';
+        }
+      }
+    });
+  }
+});
+
+// Transport Allowance Update Handler
+window.updateTransport = async function() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const transportDays = {};
   days.forEach(day => {
@@ -272,7 +278,7 @@ async function updateTransport() {
   } catch (err) {
     console.error('Failed to sync transport selection');
   }
-}
+};
 
 function calculateTransportUI() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -297,10 +303,9 @@ function calculateTransportUI() {
   }
 }
 
-function logout() {
+window.logout = function() {
   localStorage.clear();
   window.location.href = 'index.html';
-}
+};
 
 loadDashboard();
-
