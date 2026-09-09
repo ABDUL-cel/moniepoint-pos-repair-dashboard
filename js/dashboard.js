@@ -144,7 +144,7 @@ async function updateMissedWeeks(missedValue) {
   }
 }
 
-// Render Table Logs with custom CSS Badges
+// Render Table Logs with custom CSS Badges and Date & Time
 function renderLogsTable(logs) {
   const tableBody = document.getElementById('repairLogsTable');
   if (!tableBody) return;
@@ -154,7 +154,7 @@ function renderLogsTable(logs) {
   if (!logs || logs.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="4" style="padding: 16px 0; text-align: center; color: var(--text-muted);">
+        <td colspan="5" style="padding: 16px 0; text-align: center; color: var(--text-muted);">
           No terminal records logged today.
         </td>
       </tr>`;
@@ -166,9 +166,20 @@ function renderLogsTable(logs) {
     if (log.status === 'Replaced Terminal') badgeClass = 'badge-replaced';
     if (log.status === 'Pending Part') badgeClass = 'badge-pending';
 
+    // Format Date & Time
+    const logDate = log.createdAt || log.dateLogged ? new Date(log.createdAt || log.dateLogged) : new Date();
+    const formattedDateTime = logDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
     const row = document.createElement('tr');
     row.style.borderBottom = '1px solid var(--border-color)';
     row.innerHTML = `
+      <td style="padding: 10px 4px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">${formattedDateTime}</td>
       <td style="padding: 10px 4px; font-weight: 700;">${log.serialNumber}</td>
       <td style="padding: 10px 4px;">${log.merchantName}</td>
       <td style="padding: 10px 4px; color: var(--text-muted);">${log.faultType}</td>
