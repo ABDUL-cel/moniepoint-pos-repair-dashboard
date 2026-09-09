@@ -52,13 +52,21 @@ async function loadDashboard() {
     const yearlyCount = data.yearlyRepairsCount || 0;
     const missedWeeks = data.missedWeeks !== undefined ? data.missedWeeks : 0;
 
-    // 1. KPI Counts
-    if (document.getElementById('todayRepairCount')) document.getElementById('todayRepairCount').innerText = todayCount;
-    if (document.getElementById('weeklyRepairCount')) document.getElementById('weeklyRepairCount').innerText = weeklyCount;
-    if (document.getElementById('monthlyRepairCount')) document.getElementById('monthlyRepairCount').innerText = monthlyCount;
-    if (document.getElementById('yearlyRepairCount')) document.getElementById('yearlyRepairCount').innerText = yearlyCount;
+    // 1. KPI Counts as Progress Ratios
+    if (document.getElementById('todayRepairCount')) {
+      document.getElementById('todayRepairCount').innerText = `${todayCount} / 15`;
+    }
+    if (document.getElementById('weeklyRepairCount')) {
+      document.getElementById('weeklyRepairCount').innerText = `${weeklyCount} / 72`;
+    }
+    if (document.getElementById('monthlyRepairCount')) {
+      document.getElementById('monthlyRepairCount').innerText = `${monthlyCount} / 300`;
+    }
+    if (document.getElementById('yearlyRepairCount')) {
+      document.getElementById('yearlyRepairCount').innerText = `${yearlyCount} Total`;
+    }
 
-    // 2. Daily Target Calculations
+    // 2. Daily Target Circle & Bar Calculations
     const dailyPct = Math.min(Math.round((todayCount / 15) * 100), 100);
     if (document.getElementById('dailyCountText')) document.getElementById('dailyCountText').innerText = todayCount;
     if (document.getElementById('dailyCircle')) document.getElementById('dailyCircle').setAttribute('stroke-dasharray', `${dailyPct}, 100`);
@@ -212,7 +220,7 @@ if (repairForm) {
 
       if (res.ok) {
         repairForm.reset();
-        loadDashboard();
+        await loadDashboard();
       } else {
         const data = await res.json();
         alert(data.message || 'Failed to document repair');
@@ -226,7 +234,7 @@ if (repairForm) {
   });
 }
 
-// Transport Allowance Update (Saves rate and selected days)
+// Transport Allowance Update
 async function updateTransport() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   const transportDays = {};
