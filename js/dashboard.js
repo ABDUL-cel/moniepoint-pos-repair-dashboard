@@ -191,21 +191,31 @@ function renderLogsTable(logs) {
   });
 }
 
-
-// Automatically set the date picker default to Today (YYYY-MM-DD)
+// Automatically set date picker default to Today if it exists in DOM
 const dateInput = document.getElementById('repairDate');
 if (dateInput) {
   dateInput.value = new Date().toISOString().split('T')[0];
 }
 
-// Update the form submission payload:
-const payload = {
-  serialNumber: document.getElementById('serialNumber').value.trim(),
-  merchantName: document.getElementById('merchantName').value.trim(),
-  faultType: document.getElementById('faultType').value,
-  status: document.getElementById('status').value,
-  repairDate: document.getElementById('repairDate').value // Sent to custom date endpoint handler
-};
+// Log Terminal Repair Form Listener
+const repairForm = document.getElementById('repairForm');
+if (repairForm) {
+  repairForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Documenting...';
+    }
+
+    const payload = {
+      serialNumber: document.getElementById('serialNumber').value.trim(),
+      merchantName: document.getElementById('merchantName').value.trim(),
+      faultType: document.getElementById('faultType').value,
+      status: document.getElementById('status').value,
+      repairDate: document.getElementById('repairDate') ? document.getElementById('repairDate').value : new Date().toISOString().split('T')[0]
+    };
 
     try {
       const res = await fetch(`${API_URL}/api/repairs/log`, {
@@ -219,6 +229,7 @@ const payload = {
 
       if (res.ok) {
         repairForm.reset();
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         await loadDashboard();
       } else {
         const data = await res.json();
@@ -227,8 +238,10 @@ const payload = {
     } catch (err) {
       alert('Failed to connect to server');
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerText = '+ Log Repair Record';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = '+ Log Repair Record';
+      }
     }
   });
 }
@@ -290,3 +303,4 @@ function logout() {
 }
 
 loadDashboard();
+
