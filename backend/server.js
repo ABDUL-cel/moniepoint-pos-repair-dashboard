@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection
+// Mongo DB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected: Moniepoint Tech Portal'))
   .catch(err => console.error('MongoDB Connection Error:', err));
@@ -41,14 +41,12 @@ const RepairSchema = new mongoose.Schema({
   faultType: { 
     type: String, 
     enum: [
-      // Frontend HTML Select Options
       'Battery/Power Defect',
       'Screen/Display Damage',
       'Printer/Paper Jam',
       'Network/SIM Slot Issue',
       'Keypad/Button Failure',
       'Software/OS Corruption',
-      // Legacy Schema Options
       'Battery / Charging Port',
       'Screen / Display',
       'Network / SIM Slot',
@@ -59,43 +57,13 @@ const RepairSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: [
-      'Repaired & Tested',
-      'Fixed',
-      'Replaced Terminal', 
-      'Pending Part'
-    ], 
+    enum: ['Repaired & Tested', 'Fixed', 'Replaced Terminal', 'Pending Part'], 
     default: 'Repaired & Tested' 
   },
   repairDate: { type: String, required: true } // YYYY-MM-DD
 }, { timestamps: true });
 
 const Repair = mongoose.model('Repair', RepairSchema);
-
-// Weekly Transport Allowance Tracker Schema
-const TransportSchema = new mongoose.Schema({
-  techId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  weekStartDate: { type: String, required: true }, // YYYY-MM-DD (Monday)
-  transportRate: { type: Number, default: 4000 },
-  transportDays: {
-    Mon: { type: Boolean, default: false },
-    Tue: { type: Boolean, default: false },
-    Wed: { type: Boolean, default: false },
-    Thu: { type: Boolean, default: false },
-    Fri: { type: Boolean, default: false }
-  }
-}, { timestamps: true });
-
-const Transport = mongoose.model('Transport', TransportSchema);
-
-// Monthly Pay Tracker Schema (Missed Weeks)
-const MonthlyTrackerSchema = new mongoose.Schema({
-  techId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  monthKey: { type: String, required: true }, // YYYY-MM
-  missedWeeks: { type: Number, default: 0, min: 0, max: 4 }
-}, { timestamps: true });
-
-const MonthlyTracker = mongoose.model('MonthlyTracker', MonthlyTrackerSchema);
 
 /* -------------------------------------------------------------------------- */
 /*                           HELPER FUNCTIONS & AUTH                          */
@@ -114,8 +82,6 @@ const authenticateToken = (req, res, next) => {
 };
 
 const getTodayDate = () => new Date().toISOString().split('T')[0];
-
-const getMonthKey = () => new Date().toISOString().slice(0, 7);
 
 const getStartOfWeek = () => {
   const d = new Date();
@@ -142,7 +108,7 @@ const getStartOfYear = () => {
 // Register Technician
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { name, password, transportRate, transportDays } = req.body;
+    const { name, password, transportRate } = req.body;
 
     if (!name || !password) {
       return res.status(400).json({ message: 'Full name and password are required' });
@@ -160,18 +126,6 @@ app.post('/api/auth/register', async (req, res) => {
     });
     await newUser.save();
 
-    // Create Initial Transport Setting for current week
-    const startOfWeek = getStartOfWeek();
-    if (transportDays) {
-      const transportLog = new Transport({
-        techId: newUser._id,
-        weekStartDate: startOfWeek,
-        transportRate: transportRate || 4000,
-        transportDays
-      });
-      await transportLog.save();
-    }
-
     const token = jwt.sign(
       { id: newUser._id, techId: newUser.techId, name: newUser.name }, 
       process.env.JWT_SECRET, 
@@ -181,7 +135,7 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({ 
       message: 'Technician account created successfully', 
       token,
-      techId: techId,
+      techId,
       user: { name: newUser.name, techId: newUser.techId, transportRate: newUser.transportRate }
     });
   } catch (error) {
@@ -215,11 +169,11 @@ app.post('/api/auth/login', async (req, res) => {
 /*                           TECHNICIAN REPAIR ROUTES                         */
 /* -------------------------------------------------------------------------- */
 
-// Log a New Terminal Repair
+// Log a New Terminal Repair with Custom Log Date Support
 app.post('/api/repairs/log', authenticateToken, async (req, res) => {
   try {
-    const { serialNumber, merchantName, faultType, status } = req.body;
-    const today = getTodayDate();
+    const { serialNumber, merchantName, faultType, status, repairDate } = req.body;
+    const targetDate = repairDate || getTodayDate();
 
     if (!serialNumber || !merchantName || !faultType) {
       return res.status(400).json({ message: 'Serial number, merchant name, and fault type are required.' });
@@ -231,7 +185,7 @@ app.post('/api/repairs/log', authenticateToken, async (req, res) => {
       merchantName,
       faultType,
       status: status || 'Repaired & Tested',
-      repairDate: today
+      repairDate: targetDate
     });
 
     await repair.save();
@@ -249,7 +203,6 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
     const startOfWeek = getStartOfWeek();
     const startOfMonth = getStartOfMonth();
     const startOfYear = getStartOfYear();
-    const monthKey = getMonthKey();
 
     const todayRepairsCount = await Repair.countDocuments({
       techId: userId,
@@ -275,87 +228,18 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(10);
 
-    let transportLog = await Transport.findOne({ techId: userId, weekStartDate: startOfWeek });
-    if (!transportLog) {
-      const user = await User.findById(userId);
-      transportLog = new Transport({ 
-        techId: userId, 
-        weekStartDate: startOfWeek,
-        transportRate: user ? user.transportRate : 4000
-      });
-      await transportLog.save();
-    }
-
-    let monthlyTracker = await MonthlyTracker.findOne({ techId: userId, monthKey });
-    if (!monthlyTracker) {
-      monthlyTracker = new MonthlyTracker({ techId: userId, monthKey, missedWeeks: 0 });
-      await monthlyTracker.save();
-    }
-
     res.json({
       todayRepairsCount,
       weeklyRepairsCount,
       monthlyRepairsCount,
       yearlyRepairsCount,
-      recentRepairs,
-      transportDays: transportLog.transportDays,
-      transportRate: transportLog.transportRate,
-      missedWeeks: monthlyTracker.missedWeeks
+      recentRepairs
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 });
 
-// Update Weekly Transport Allowance
-app.post('/api/transport/update', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const startOfWeek = getStartOfWeek();
-    const { transportDays, transportRate } = req.body;
-
-    const updateFields = {};
-    if (transportDays) updateFields.transportDays = transportDays;
-    if (transportRate !== undefined) updateFields.transportRate = transportRate;
-
-    const updatedTransport = await Transport.findOneAndUpdate(
-      { techId: userId, weekStartDate: startOfWeek },
-      { $set: updateFields },
-      { new: true, upsert: true }
-    );
-
-    if (transportRate !== undefined) {
-      await User.findByIdAndUpdate(userId, { transportRate });
-    }
-
-    res.json({ 
-      success: true, 
-      transportDays: updatedTransport.transportDays,
-      transportRate: updatedTransport.transportRate 
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating transport allowance', error: error.message });
-  }
-});
-
-// Update Missed Weeks Tracker
-app.post('/api/monthly/missed-weeks', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const monthKey = getMonthKey();
-    const { missedWeeks } = req.body;
-
-    const updatedTracker = await MonthlyTracker.findOneAndUpdate(
-      { techId: userId, monthKey },
-      { $set: { missedWeeks } },
-      { new: true, upsert: true }
-    );
-
-    res.json({ success: true, missedWeeks: updatedTracker.missedWeeks });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating monthly tracker', error: error.message });
-  }
-});
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Moniepoint Tech Portal running on port ${PORT}`));
+
