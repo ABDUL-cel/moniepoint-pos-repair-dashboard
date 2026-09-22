@@ -117,10 +117,10 @@ function calculateMonthlyPayUI(missedCount) {
 
   switch (parseInt(missedCount, 10)) {
     case 0: totalPayout = 320000; break;
-    case 1: totalPayout = 300000; break;
-    case 2: totalPayout = 280000; break;
-    case 3: totalPayout = 200000; break;
-    case 4: totalPayout = 200000; break;
+    case 1: totalPayout = 290000; break;
+    case 2: totalPayout = 260000; break;
+    case 3: totalPayout = 230000; break;
+    case 4: totalPayout =200000; break;
     default: totalPayout = 200000; break;
   }
 
@@ -354,7 +354,7 @@ window.downloadPerformancePDF = async function(type = 'weekly') {
   doc.setFont("helvetica", "bold");
   if (type === 'weekly') {
     doc.text(`Weekly Repairs: ${weeklyCount}`, 125, 33);
-    doc.text(`Target: 72 Terminals`, 125, 40);
+    doc.text(`Target: 75 Terminals`, 125, 40);
   } else {
     doc.text(`Monthly Repairs: ${monthlyCount}`, 125, 33);
     doc.text(`Projected Pay: ${payout}`, 125, 40);
