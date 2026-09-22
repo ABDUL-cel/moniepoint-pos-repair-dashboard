@@ -57,7 +57,7 @@ async function loadDashboard() {
       document.getElementById('todayRepairCount').innerText = `${todayCount} / 15`;
     }
     if (document.getElementById('weeklyRepairCount')) {
-      document.getElementById('weeklyRepairCount').innerText = `${weeklyCount} / 72`;
+      document.getElementById('weeklyRepairCount').innerText = `${weeklyCount} / 75`;
     }
     if (document.getElementById('monthlyRepairCount')) {
       document.getElementById('monthlyRepairCount').innerText = `${monthlyCount} / 300`;
