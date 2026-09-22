@@ -17,13 +17,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve static files from the root directory so index.html loads on URL request
-app.use(express.static(path.join(__dirname)));
-
-// Root route fallback to serve index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname, '..')));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -52,14 +47,12 @@ const RepairSchema = new mongoose.Schema({
   faultType: { 
     type: String, 
     enum: [
-      // Frontend HTML Select Options
       'Battery/Power Defect',
       'Screen/Display Damage',
       'Printer/Paper Jam',
       'Network/SIM Slot Issue',
       'Keypad/Button Failure',
       'Software/OS Corruption',
-      // Legacy Schema Options
       'Battery / Charging Port',
       'Screen / Display',
       'Network / SIM Slot',
@@ -78,7 +71,7 @@ const RepairSchema = new mongoose.Schema({
     ], 
     default: 'Repaired & Tested' 
   },
-  repairDate: { type: String, required: true } // YYYY-MM-DD
+  repairDate: { type: String, required: true }
 }, { timestamps: true });
 
 const Repair = mongoose.model('Repair', RepairSchema);
@@ -86,7 +79,7 @@ const Repair = mongoose.model('Repair', RepairSchema);
 // Weekly Transport Allowance Tracker Schema
 const TransportSchema = new mongoose.Schema({
   techId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  weekStartDate: { type: String, required: true }, // YYYY-MM-DD (Monday)
+  weekStartDate: { type: String, required: true },
   transportRate: { type: Number, default: 4000 },
   transportDays: {
     Mon: { type: Boolean, default: false },
@@ -102,7 +95,7 @@ const Transport = mongoose.model('Transport', TransportSchema);
 // Monthly Pay Tracker Schema (Missed Weeks)
 const MonthlyTrackerSchema = new mongoose.Schema({
   techId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  monthKey: { type: String, required: true }, // YYYY-MM
+  monthKey: { type: String, required: true },
   missedWeeks: { type: Number, default: 0, min: 0, max: 4 }
 }, { timestamps: true });
 
@@ -171,7 +164,6 @@ app.post('/api/auth/register', async (req, res) => {
     });
     await newUser.save();
 
-    // Create Initial Transport Setting for current week
     const startOfWeek = getStartOfWeek();
     if (transportDays) {
       const transportLog = new Transport({
@@ -230,7 +222,6 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/repairs/log', authenticateToken, async (req, res) => {
   try {
     const { serialNumber, merchantName, faultType, status, repairDate } = req.body;
-    
     const targetDate = repairDate || getTodayDate();
 
     if (!serialNumber || !merchantName || !faultType) {
@@ -263,25 +254,10 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
     const startOfYear = getStartOfYear();
     const monthKey = getMonthKey();
 
-    const todayRepairsCount = await Repair.countDocuments({
-      techId: userId,
-      repairDate: today
-    });
-
-    const weeklyRepairsCount = await Repair.countDocuments({
-      techId: userId,
-      repairDate: { $gte: startOfWeek }
-    });
-
-    const monthlyRepairsCount = await Repair.countDocuments({
-      techId: userId,
-      repairDate: { $gte: startOfMonth }
-    });
-
-    const yearlyRepairsCount = await Repair.countDocuments({
-      techId: userId,
-      repairDate: { $gte: startOfYear }
-    });
+    const todayRepairsCount = await Repair.countDocuments({ techId: userId, repairDate: today });
+    const weeklyRepairsCount = await Repair.countDocuments({ techId: userId, repairDate: { $gte: startOfWeek } });
+    const monthlyRepairsCount = await Repair.countDocuments({ techId: userId, repairDate: { $gte: startOfMonth } });
+    const yearlyRepairsCount = await Repair.countDocuments({ techId: userId, repairDate: { $gte: startOfYear } });
 
     const recentRepairs = await Repair.find({ techId: userId })
       .sort({ createdAt: -1 })
@@ -319,12 +295,11 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/repairs/export?range=weekly OR ?range=monthly
+// Export History
 app.get('/api/repairs/export', authenticateToken, async (req, res) => {
   try {
     const { range } = req.query;
     const days = range === 'monthly' ? 30 : 7;
-    
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -339,14 +314,14 @@ app.get('/api/repairs/export', authenticateToken, async (req, res) => {
   }
 });
 
-// Update Weekly Transport Allowance
+// Update Transport
 app.post('/api/transport/update', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const startOfWeek = getStartOfWeek();
     const { transportDays, transportRate } = req.body;
-
     const updateFields = {};
+
     if (transportDays) updateFields.transportDays = transportDays;
     if (transportRate !== undefined) updateFields.transportRate = transportRate;
 
@@ -370,7 +345,7 @@ app.post('/api/transport/update', authenticateToken, async (req, res) => {
   }
 });
 
-// Update Missed Weeks Tracker
+// Update Missed Weeks
 app.post('/api/monthly/missed-weeks', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -389,5 +364,13 @@ app.post('/api/monthly/missed-weeks', authenticateToken, async (req, res) => {
   }
 });
 
+// Catch-All Route to serve index.html for any frontend request
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: 'API Endpoint Not Found' });
+  }
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Moniepoint Tech Portal running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
