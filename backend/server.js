@@ -16,7 +16,14 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve static files from the root directory so index.html loads on URL request
+app.use(express.static(path.join(__dirname)));
+
+// Root route fallback to serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -311,6 +318,7 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 });
+
 // GET /api/repairs/export?range=weekly OR ?range=monthly
 app.get('/api/repairs/export', authenticateToken, async (req, res) => {
   try {
@@ -320,8 +328,8 @@ app.get('/api/repairs/export', authenticateToken, async (req, res) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const repairs = await RepairLog.find({
-      userId: req.user.id,
+    const repairs = await Repair.find({
+      techId: req.user.id,
       createdAt: { $gte: startDate }
     }).sort({ createdAt: -1 });
 
@@ -330,7 +338,6 @@ app.get('/api/repairs/export', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch export history', error: error.message });
   }
 });
-
 
 // Update Weekly Transport Allowance
 app.post('/api/transport/update', authenticateToken, async (req, res) => {
@@ -384,4 +391,3 @@ app.post('/api/monthly/missed-weeks', authenticateToken, async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Moniepoint Tech Portal running on port ${PORT}`));
-
